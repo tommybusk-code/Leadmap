@@ -59,7 +59,20 @@ window.MapView = (() => {
     const root = document.getElementById('view-map');
     if (!root || root.dataset.mapBuilt) return;
     root.dataset.mapBuilt = '1';
-    root.style.cssText = 'display:flex;flex-direction:column;height:calc(100vh - 110px)';
+    // Beregn top dynamisk (header + tab-bar)
+    const navEl = document.querySelector('.main-tabs');
+    const top = navEl ? Math.round(navEl.getBoundingClientRect().bottom) : 177;
+    root.style.cssText = [
+      'position:fixed',
+      `top:${top}px`,
+      'left:0',
+      'right:0',
+      'bottom:0',
+      'z-index:20',
+      'display:flex',
+      'flex-direction:column',
+      'background:var(--surface,#f8fafc)',
+    ].join(';');
 
     root.innerHTML = `
       <div id="map-toolbar" style="
@@ -256,17 +269,22 @@ window.MapView = (() => {
   // ── Offentlig API ─────────────────────────────────────────────
   function show() {
     const root = document.getElementById('view-map');
-    if (root) root.hidden = false;
+    if (root) { root.hidden = false; root.style.display = 'flex'; }
     if (!initialized) {
       init();
     } else {
+      // Rekalkuér top i tilfelle viewport er resizet
+      const navEl = document.querySelector('.main-tabs');
+      if (navEl && root) {
+        root.style.top = Math.round(navEl.getBoundingClientRect().bottom) + 'px';
+      }
       setTimeout(() => map && map.invalidateSize(), 120);
     }
   }
 
   function hide() {
     const root = document.getElementById('view-map');
-    if (root) root.hidden = true;
+    if (root) { root.hidden = true; root.style.display = 'none'; }
   }
 
   return { init, show, hide, reload };
