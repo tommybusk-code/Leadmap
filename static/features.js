@@ -180,12 +180,15 @@ MS.anker = new MultiSelect("ms-anker-btn", "ms-anker-dropdown", {label: "ankere"
 
 // === Init (await loadLeads slik at stats/leads ikke raser om den ene feiler) ===
 (async () => {
+  if (window._setPageLoad) _setPageLoad(15, 'Henter statistikk…');
   try {
     await loadStats();
   } catch (e) {
     console.error("loadStats:", e);
   }
+  if (window._setPageLoad) _setPageLoad(45, 'Laster leads…');
   await loadLeads();
+  if (window._setPageLoad) _setPageLoad(100, 'Klar');
   checkExistingJobs();
 })();
 setInterval(loadStats, 30000);

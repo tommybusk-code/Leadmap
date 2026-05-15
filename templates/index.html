@@ -42,6 +42,39 @@
 </head>
 <body>
 
+<!-- ── Sideoppstart-fremdrift ──────────────────────────────────────── -->
+<div id="pl-bar" style="position:fixed;top:0;left:0;right:0;z-index:9999;height:3px;pointer-events:none">
+  <div id="pl-fill" style="height:100%;width:5%;background:#5e5ce6;transition:width .35s cubic-bezier(.4,0,.2,1),opacity .5s ease"></div>
+</div>
+<div id="pl-label" style="
+  position:fixed;top:3px;left:50%;transform:translateX(-50%);z-index:9999;
+  background:var(--card-bg,#fff);border:1px solid var(--border,#e2e8f0);
+  border-radius:0 0 8px 8px;padding:3px 16px;font-size:12px;
+  color:var(--text-muted,#666);box-shadow:0 2px 6px rgba(0,0,0,.08);
+  pointer-events:none;white-space:nowrap;transition:opacity .4s ease">
+  Laster LeadMap…
+</div>
+<script>
+window._setPageLoad = function(pct, msg) {
+  var fill = document.getElementById('pl-fill');
+  var lbl  = document.getElementById('pl-label');
+  if (fill) fill.style.width = Math.min(100, pct) + '%';
+  if (lbl && msg) lbl.textContent = msg;
+  if (pct >= 100) {
+    setTimeout(function() {
+      if (fill) fill.style.opacity = '0';
+      if (lbl)  lbl.style.opacity  = '0';
+      setTimeout(function() {
+        var bar = document.getElementById('pl-bar');
+        if (bar) bar.style.display = 'none';
+        if (lbl) lbl.style.display = 'none';
+      }, 500);
+    }, 350);
+  }
+};
+</script>
+<!-- ─────────────────────────────────────────────────────────────────── -->
+
 <header>
   <div class="hdr-row hdr-row--compact">
     <h1 class="brand-heading">
@@ -499,7 +532,7 @@
 <script src="/static/progress.js?v=70"></script>
 <script src="/static/settings.js?v=80"></script>
 <script src="/static/import.js?v=65"></script>
-<script src="/static/features.js?v=76"></script>
-<script src="/static/map-view.js?v=1"></script>
+<script src="/static/features.js?v=77"></script>
+<script src="/static/map-view.js?v=2"></script>
 </body>
 </html>
