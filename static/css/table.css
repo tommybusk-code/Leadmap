@@ -40,6 +40,7 @@ tbody td {
 tbody td.wrap { white-space: normal; }
 tbody tr { cursor: pointer; transition: background-color 0.12s ease; }
 tbody tr:hover { background: rgba(99, 102, 241, 0.04); }
+tbody tr:focus-within { outline: 2px solid var(--primary-light); outline-offset: -2px; }
 
 /* Smale tall-kolonner — kun leads-tabellen (#, Score, Ans.) */
 #leads-table tbody td:first-child,
@@ -83,14 +84,15 @@ th.sortable.sorted                  { color: var(--text); font-weight: 700; }
 /* === Score-pille === */
 .score-cell {
   display: inline-flex; align-items: center; justify-content: center;
-  min-width: 32px; padding: 3px var(--space-2);
-  border-radius: var(--radius-sm);
-  font-weight: 600; font-size: 12px; letter-spacing: -0.01em;
+  min-width: 38px; padding: 4px 10px;
+  border-radius: var(--radius);
+  font-weight: 700; font-size: 13.5px; letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
+  line-height: 1.1;
 }
-.score-high { background: var(--success-bg); color: #047857; }
-.score-mid  { background: var(--warning-bg); color: #b45309; }
-.score-low  { background: var(--surface-2); color: var(--muted); }
+.score-high { background: var(--success-bg); color: #065f46; }
+.score-mid  { background: var(--warning-bg); color: #92400e; }
+.score-low  { background: var(--surface-2); color: var(--muted); border: 1px solid var(--border); }
 
 /* === Signal-tags (lead-scoring chips) === */
 .sig-list { display: flex; flex-wrap: wrap; gap: var(--space-1); }
@@ -261,6 +263,84 @@ th.sortable.sorted                  { color: var(--text); font-weight: 700; }
   margin: 0 1px; padding: var(--space-1) 6px;
   min-width: 26px; vertical-align: middle;
 }
+
+/* Tekst+ikon-handlinger (Web/in/Proff) — kompakt, ny-bruker-vennlig */
+.actions-cell .action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  font-size: 10.5px;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  line-height: 1.4;
+}
+.actions-cell .action-btn:hover {
+  color: var(--primary);
+  border-color: var(--primary-100);
+  background: var(--primary-50);
+}
+.actions-cell .action-btn i.ti {
+  font-size: 13px;
+  line-height: 1;
+}
+.actions-cell .action-btn .action-label {
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+.actions-cell .action-more {
+  display: inline-block;
+  position: relative;
+}
+.actions-cell .action-more-btn {
+  padding: 3px 5px;
+  min-width: 22px;
+}
+.actions-cell .action-more-btn i.ti { font-size: 14px; }
+
+/* «Flere handlinger»-popover — én forekomst, posisjoneres pr. åpning */
+.lead-action-popover {
+  position: fixed;
+  z-index: 200;
+  min-width: 220px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  animation: modalIn 0.12s ease;
+}
+.lead-action-popover .lead-action-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  color: var(--text);
+  border: none;
+  border-radius: var(--radius-xs);
+  padding: 8px 10px;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: none;
+}
+.lead-action-popover .lead-action-item i.ti {
+  font-size: 15px;
+  color: var(--muted);
+}
+.lead-action-popover .lead-action-item:hover {
+  background: var(--surface-2);
+  color: var(--primary);
+  transform: none;
+}
+.lead-action-popover .lead-action-item:hover i.ti { color: var(--primary); }
 
 /* === Status-select inline i raden === */
 .status-select {

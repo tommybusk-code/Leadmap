@@ -39,6 +39,28 @@
   border-color: var(--primary-100); font-weight: 600;
   box-shadow: 0 1px 2px rgba(79, 70, 229, 0.08);
 }
+.status-tabs .st-label { line-height: 1; }
+.status-tabs .st-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  padding: 1px 6px;
+  font-size: 10.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+.status-tabs button.active .st-count {
+  color: var(--primary);
+  background: #fff;
+  border-color: var(--primary-100);
+}
 
 /* === Filter-bar — floating card === */
 .filters {
@@ -73,6 +95,73 @@
   padding: 5px 12px; border-radius: var(--radius-pill);
   border: 1px solid var(--border);
 }
+
+/* Søkefelt med ikon-prefix */
+.filter-search {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 220px;
+  min-width: 200px;
+}
+.filter-search-ico {
+  position: absolute;
+  left: 10px;
+  font-size: 14px;
+  color: var(--muted);
+  pointer-events: none;
+}
+.filter-search input {
+  width: 100%;
+  padding-left: 30px;
+}
+
+/* Filter-gruppe (multi-select-knappene) */
+.filter-group {
+  display: inline-flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Inline-label for tall/sort */
+.filter-inline {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background: var(--surface-2);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+.filter-inline > span {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.filter-inline input,
+.filter-inline select {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 2px 4px !important;
+}
+
+/* Verktøys-cluster (Nullstill + Excel) */
+.filter-tools {
+  display: inline-flex;
+  gap: 4px;
+}
+.filter-tool-btn {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px !important;
+  font-size: 11px !important;
+}
+.filter-tool-btn i.ti { font-size: 13px; color: var(--muted); }
+.filter-tool-btn:hover i.ti { color: var(--primary); }
 
 /* === Multi-select dropdown === */
 .ms-wrap { position: relative; display: inline-block; }

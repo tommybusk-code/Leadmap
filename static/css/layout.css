@@ -180,6 +180,154 @@ body:has(#app-actions-panel:not(.is-collapsed)) #app-actions-toggle.app-actions-
   align-self: stretch;
   text-align: center;
 }
+
+/* === Sidepanel — primær CTA, foldede sekundære, ikon-rad === */
+.app-actions-inner > button.panel-cta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  justify-content: flex-start;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  line-height: 1.25;
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  box-shadow: 0 1px 2px rgba(79, 70, 229, 0.18);
+}
+.app-actions-inner > button.panel-cta i.ti { font-size: 18px; flex-shrink: 0; color: #fff; }
+.app-actions-inner > button.panel-cta:hover:not(:disabled) {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+}
+.app-actions-inner > button.panel-cta:hover:not(:disabled) i.ti { color: #fff; }
+.panel-btn-label { display: flex; flex-direction: column; gap: 2px; }
+.panel-btn-title { font-weight: 600; }
+.panel-btn-sub {
+  font-size: 11px;
+  font-weight: 400;
+  opacity: 0.85;
+  letter-spacing: 0;
+}
+
+.app-actions-inner .panel-btn,
+.app-actions-inner .panel-sub-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  justify-content: flex-start;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  font-size: 12px;
+  box-shadow: var(--shadow-xs);
+}
+.app-actions-inner .panel-btn:hover:not(:disabled),
+.app-actions-inner .panel-sub-btn:hover:not(:disabled) {
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+  color: var(--primary);
+  transform: none;
+}
+.app-actions-inner .panel-btn i.ti,
+.app-actions-inner .panel-sub-btn i.ti {
+  font-size: 16px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.app-actions-inner .panel-btn:hover i.ti,
+.app-actions-inner .panel-sub-btn:hover i.ti { color: var(--primary); }
+
+.app-actions-inner .panel-sub-btn {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+}
+.app-actions-inner .panel-sub-btn:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+
+.app-actions-inner .panel-fold {
+  margin: 0;
+}
+.app-actions-inner .panel-fold > summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 12px;
+  color: var(--muted);
+  background: var(--surface);
+  box-shadow: var(--shadow-xs);
+  transition: all 0.15s var(--ease);
+  user-select: none;
+}
+.app-actions-inner .panel-fold > summary::-webkit-details-marker { display: none; }
+.app-actions-inner .panel-fold > summary i.ti {
+  font-size: 14px;
+  transition: transform 0.18s var(--ease);
+}
+.app-actions-inner .panel-fold[open] > summary i.ti { transform: rotate(180deg); }
+.app-actions-inner .panel-fold > summary:hover {
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+.panel-fold-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 4px 0;
+}
+
+.panel-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0;
+}
+
+.panel-utility-row {
+  display: flex;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 8px;
+}
+.panel-utility-row .panel-icon-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 7px 0;
+  box-shadow: none;
+  font-size: 14px;
+  line-height: 1;
+}
+.panel-utility-row .panel-icon-btn i.ti { font-size: 15px; }
+.panel-utility-row .panel-icon-btn:hover:not(:disabled) {
+  background: var(--surface-2);
+  color: var(--primary);
+  border-color: var(--border-strong);
+  transform: none;
+}
 .app-actions-panel.is-collapsed .app-actions-drawer {
   width: 0;
   opacity: 0;
@@ -260,8 +408,10 @@ body:has(#app-actions-panel.is-collapsed) #app-actions-toggle.app-actions-toggle
   border-radius: 0; cursor: pointer; box-shadow: none;
   border-bottom: 2px solid transparent; margin-bottom: -1px;
   letter-spacing: -0.005em;
+  display: inline-flex; align-items: center; gap: 7px;
   transition: color 0.15s ease, border-color 0.15s ease;
 }
+.main-tab i.ti { font-size: 16px; color: inherit; }
 .main-tab:hover {
   color: var(--text); background: transparent;
   transform: none; box-shadow: none;

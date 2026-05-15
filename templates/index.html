@@ -5,7 +5,8 @@
   <title>LeadMap</title>
   <script src="/static/theme-init.js"></script>
   <link rel="icon" type="image/jpeg" href="/static/brand/leadmap-light.jpg">
-  <link rel="stylesheet" href="/static/style.css?v=114">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+  <link rel="stylesheet" href="/static/style.css?v=115">
   <!-- Festet menyflik (viewport) + posisjon når skuff er åpen -->
   <style id="leadmap-actions-panel-lock">
     #app-actions-panel.app-actions-panel {
@@ -111,29 +112,62 @@ window._setPageLoad = function(pct, msg) {
 <aside id="app-actions-panel" class="app-actions-panel" aria-label="Handlinger">
   <div id="app-actions-drawer" class="app-actions-drawer" role="region" aria-label="Analyser og innstillinger">
     <div class="app-actions-inner">
-      <button type="button" id="btn-theme-toggle" class="theme-toggle theme-toggle--panel secondary" aria-label="Bytt til mørk modus" title="Mørk modus">🌙</button>
-      <button id="btn-analyze" title="Inkrementell analyse — discovery og roller; Kartverket kun for nylig oppdagede leads (ikke hele listen). Bruk «Geo + score» for alle.">Kjør analyse</button>
-      <button type="button" id="btn-analyze-no-geo" class="secondary" title="Samme som «Kjør analyse», men uten nye Kartverket-kall: bruker geo-cache og lagrede koordinater for luftlinje.">Re-analyse uten geo</button>
-      <button id="btn-analyze-full" title="Tømmer discovery-cache og kjører alt på nytt, inkl. Kartverket.">↻ Full re-analyse</button>
-      <button type="button" id="btn-geo-rescore" title="Kun geokoding (Kartverket) og score på nytt — uten full lead-discovery.">🌍 Geo + score</button>
-      <button id="btn-add" title="Legg til ny kunde via brreg-oppslag.">+ Legg til kunde</button>
-      <button id="btn-import" title="Importer kunder fra Excel eller CSV.">⬆ Importer</button>
-      <button id="btn-settings" title="Vekt-innstillinger.">⚙️ Innstillinger</button>
+      <button id="btn-analyze" class="primary panel-cta" title="Inkrementell analyse — discovery og roller; Kartverket kun for nylig oppdagede leads (ikke hele listen). Bruk «Geo + score» for alle.">
+        <i class="ti ti-player-play" aria-hidden="true"></i>
+        <span class="panel-btn-label">
+          <span class="panel-btn-title">Kjør analyse</span>
+          <span class="panel-btn-sub">Hent nye leads og oppdater score</span>
+        </span>
+      </button>
+
+      <details class="panel-fold">
+        <summary><i class="ti ti-chevron-down" aria-hidden="true"></i><span>Andre kjøringer</span></summary>
+        <div class="panel-fold-body">
+          <button type="button" id="btn-analyze-no-geo" class="panel-sub-btn" title="Samme som «Kjør analyse», men uten nye Kartverket-kall: bruker geo-cache og lagrede koordinater for luftlinje.">
+            <i class="ti ti-refresh" aria-hidden="true"></i>Re-analyse uten geo
+          </button>
+          <button id="btn-analyze-full" class="panel-sub-btn" title="Tømmer discovery-cache og kjører alt på nytt, inkl. Kartverket.">
+            <i class="ti ti-rotate-clockwise-2" aria-hidden="true"></i>Full re-analyse
+          </button>
+          <button type="button" id="btn-geo-rescore" class="panel-sub-btn" title="Kun geokoding (Kartverket) og score på nytt — uten full lead-discovery.">
+            <i class="ti ti-map-pin" aria-hidden="true"></i>Kun geo + score
+          </button>
+        </div>
+      </details>
+
+      <div class="panel-divider" aria-hidden="true"></div>
+
+      <button id="btn-add" class="panel-btn" title="Legg til ny kunde via brreg-oppslag.">
+        <i class="ti ti-plus" aria-hidden="true"></i>Legg til kunde
+      </button>
+      <button id="btn-import" class="panel-btn" title="Importer kunder fra Excel eller CSV.">
+        <i class="ti ti-upload" aria-hidden="true"></i>Importer fra Excel
+      </button>
+
+      <div class="panel-utility-row">
+        <button type="button" id="btn-theme-toggle" class="panel-icon-btn" aria-label="Bytt til mørk modus" title="Mørk modus">
+          <i class="ti ti-moon" aria-hidden="true"></i>
+        </button>
+        <button id="btn-settings" class="panel-icon-btn" title="Innstillinger" aria-label="Innstillinger">
+          <i class="ti ti-settings" aria-hidden="true"></i>
+        </button>
+      </div>
+
       <span id="run-status"></span>
     </div>
   </div>
 </aside>
 
 <nav class="main-tabs">
-  <button class="main-tab active" data-view="leads">📋 Leads</button>
-  <button class="main-tab" data-view="customers">🏢 Kunder</button>
-  <button class="main-tab" data-view="map">🗺️ Kart</button>
+  <button class="main-tab active" data-view="leads"><i class="ti ti-list-check" aria-hidden="true"></i>Leads</button>
+  <button class="main-tab" data-view="customers"><i class="ti ti-building" aria-hidden="true"></i>Kunder</button>
+  <button class="main-tab" data-view="map"><i class="ti ti-map-2" aria-hidden="true"></i>Kart</button>
 </nav>
 
 <div class="setup-banner" id="setup-banner-empty" hidden role="status">
   <p><strong>Ingen kunder ennå.</strong> Velg et Excel- eller CSV-ark med kundeliste — vi gjenkjenner vanlige kolonnenavn for firmanavn og org.nr.</p>
   <div class="setup-banner-actions">
-    <button type="button" id="btn-setup-import" class="primary">⬆ Importer kunder</button>
+    <button type="button" id="btn-setup-import" class="primary"><i class="ti ti-upload" aria-hidden="true" style="vertical-align:-2px;margin-right:6px"></i>Importer kunder</button>
     <span class="muted">Alternativt: <strong>+ Legg til kunde</strong> for ett firma om gangen.</span>
   </div>
 </div>
@@ -145,23 +179,37 @@ window._setPageLoad = function(pct, msg) {
 <section class="status-tabs" id="status-tabs"></section>
 
 <section class="filters">
-  <input type="text" id="f-search" placeholder="Søk navn / org.nr">
-  <div class="ms-wrap"><button class="ms-btn" id="ms-signal-btn">Alle signaler</button><div class="ms-dropdown" id="ms-signal-dropdown" hidden></div></div>
-  <div class="ms-wrap"><button class="ms-btn" id="ms-fylke-btn">Alle fylker</button><div class="ms-dropdown" id="ms-fylke-dropdown" hidden></div></div>
-  <div class="ms-wrap"><button class="ms-btn" id="ms-kommune-btn">Alle kommuner</button><div class="ms-dropdown" id="ms-kommune-dropdown" hidden></div></div>
-  <div class="ms-wrap"><button class="ms-btn" id="ms-anker-btn">Alle ankere</button><div class="ms-dropdown" id="ms-anker-dropdown" hidden></div></div>
-  <label>Min score <input type="number" id="f-minscore" value="0" min="0" max="100" style="width:50px"></label>
-  <label class="f-sort-preset-wrap" title="Geo-sortering bruker luftlinje (lavere meter = nærmere). Velg én anker i filteret for avstand til den kunden.">
-    Sorter
+  <div class="filter-search">
+    <i class="ti ti-search filter-search-ico" aria-hidden="true"></i>
+    <input type="text" id="f-search" placeholder="Søk navn eller org.nr">
+  </div>
+  <div class="filter-group" role="group" aria-label="Filtre">
+    <div class="ms-wrap"><button class="ms-btn" id="ms-signal-btn">Alle signaler</button><div class="ms-dropdown" id="ms-signal-dropdown" hidden></div></div>
+    <div class="ms-wrap"><button class="ms-btn" id="ms-fylke-btn">Alle fylker</button><div class="ms-dropdown" id="ms-fylke-dropdown" hidden></div></div>
+    <div class="ms-wrap"><button class="ms-btn" id="ms-kommune-btn">Alle kommuner</button><div class="ms-dropdown" id="ms-kommune-dropdown" hidden></div></div>
+    <div class="ms-wrap"><button class="ms-btn" id="ms-anker-btn">Alle ankere</button><div class="ms-dropdown" id="ms-anker-dropdown" hidden></div></div>
+  </div>
+  <label class="filter-inline" title="Skjul leads under denne scoren">
+    <span>Min. score</span>
+    <input type="number" id="f-minscore" value="0" min="0" max="100" style="width:54px">
+  </label>
+  <label class="filter-inline f-sort-preset-wrap" title="Geo-sortering bruker luftlinje (lavere meter = nærmere). Velg én anker i filteret for avstand til den kunden.">
+    <span>Sortér</span>
     <select id="f-sort-preset" style="max-width:200px;font-size:12px">
-      <option value="">Etter kolonne (klikk #/Score/…)</option>
+      <option value="">Klikk kolonne</option>
       <option value="score:desc">Score: høy → lav</option>
-      <option value="geoscore:asc">Geo: nær → fjern (meter)</option>
+      <option value="geoscore:asc">Geo: nær → fjern</option>
       <option value="geoscore:desc">Geo: fjern → nær</option>
     </select>
   </label>
-  <button id="btn-reset-filters" class="secondary" style="font-size:11px;padding:5px 10px">Nullstill filtre</button>
-  <button type="button" id="btn-export-leads-xlsx" class="secondary" style="font-size:11px;padding:5px 10px" title="Eksporter alle treff i gjeldende filter til Excel (én rad per lead)">⬇ Excel (filter)</button>
+  <div class="filter-tools">
+    <button id="btn-reset-filters" class="secondary filter-tool-btn" title="Nullstill alle filtre">
+      <i class="ti ti-refresh" aria-hidden="true"></i><span>Nullstill</span>
+    </button>
+    <button type="button" id="btn-export-leads-xlsx" class="secondary filter-tool-btn" title="Eksporter alle treff i gjeldende filter til Excel (én rad per lead)">
+      <i class="ti ti-download" aria-hidden="true"></i><span>Excel</span>
+    </button>
+  </div>
   <span class="counter" id="counter"></span>
 </section>
 
@@ -431,8 +479,17 @@ window._setPageLoad = function(pct, msg) {
 <!-- Modal: Settings -->
 <div class="modal" id="modal-settings" hidden>
   <div class="modal-content wide">
-    <h2>⚙️ Innstillinger</h2>
-    <p class="muted">Velg hvordan leads skal rangeres. Start med et forhåndsvalg under — eller åpne «Finjuster» bare hvis du vil styre hvert signal selv. <strong>Lagre</strong> oppdaterer alle leads. <strong>Score 0–100</strong> skaleres mot de signaltypene hver lead faktisk har (pluss kryss-/multi-bonus der det gjelder), ikke mot summen av alle mulige signaler — derfor bedre spredning i toppen. «Teoretisk tak» under viser fortsatt verste fall (alle typer) som referanse for sliderne. Geo: samme besøksadresse og postnr veier alltid tyngre enn kun samme postnr, som veier tyngre enn samme kommune — også når du justerer sliderne selv.</p>
+    <h2><i class="ti ti-settings" aria-hidden="true" style="vertical-align:-3px;margin-right:4px"></i>Innstillinger</h2>
+    <p class="muted" style="margin-bottom:8px">Velg hvordan leads skal rangeres. Start med et forhåndsvalg under, eller juster sliderne selv.</p>
+    <details class="settings-explainer">
+      <summary><i class="ti ti-info-circle" aria-hidden="true"></i>Slik fungerer scoringen</summary>
+      <div class="settings-explainer-body">
+        <p><strong>Score 0–100</strong> skaleres mot de signaltypene hver lead faktisk har (pluss kryss-/multi-bonus der det gjelder), ikke mot summen av alle mulige signaler — derfor bedre spredning i toppen.</p>
+        <p>«Teoretisk tak» under viser verste fall (alle typer) som referanse for sliderne.</p>
+        <p><strong>Geo</strong>: samme besøksadresse og postnr veier alltid tyngre enn kun samme postnr, som veier tyngre enn samme kommune — også når du justerer sliderne selv.</p>
+        <p><strong>Lagre</strong> oppdaterer alle leads.</p>
+      </div>
+    </details>
     <div class="settings-section">
       <h3>Prioritet</h3>
       <div id="weights-grid" class="settings-weights-wrap"></div>
@@ -522,9 +579,9 @@ window._setPageLoad = function(pct, msg) {
   </div>
 </div>
 
-<script src="/static/core.js?v=88"></script>
+<script src="/static/core.js?v=89"></script>
 <script src="/static/auth-ui.js?v=6"></script>
-<script src="/static/leads-table.js?v=80"></script>
+<script src="/static/leads-table.js?v=81"></script>
 <script src="/static/leads-detail.js?v=86"></script>
 <script src="/static/customers-tab.js?v=68"></script>
 <script src="/static/customers-modal.js?v=79"></script>

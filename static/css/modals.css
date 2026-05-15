@@ -429,6 +429,39 @@ input.weight-slider[type="range"] {
   border-radius: var(--radius-sm); margin-top: var(--space-2);
 }
 
+/* Innstillinger — utklappbar forklaring (erstatter den gamle 150-ord-paragrafen) */
+.settings-explainer {
+  margin: 0 0 var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+}
+.settings-explainer > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  user-select: none;
+}
+.settings-explainer > summary::-webkit-details-marker { display: none; }
+.settings-explainer > summary i.ti {
+  font-size: 14px;
+  color: var(--primary);
+}
+.settings-explainer > summary:hover { color: var(--text); }
+.settings-explainer-body {
+  padding: 0 12px 10px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+.settings-explainer-body p { margin: 6px 0; }
+.settings-explainer-body strong { color: var(--text); }
+
 /* === Maks-total badge i settings === */
 .max-total {
   font-size: 13px; font-weight: 600;

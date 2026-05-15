@@ -832,7 +832,14 @@ document.querySelectorAll(".modal").forEach(m => {
     const dark = document.documentElement.getAttribute("data-theme") === "dark";
     btn.setAttribute("aria-label", dark ? "Bytt til lys modus" : "Bytt til mørk modus");
     btn.setAttribute("title", dark ? "Lys modus" : "Mørk modus");
-    btn.textContent = dark ? "☀️" : "🌙";
+    // Bruk Tabler-ikon hvis det finnes (ny markup), ellers fall tilbake til emoji-tekst (bakoverkompat).
+    const i = btn.querySelector("i.ti");
+    if (i) {
+      i.classList.remove("ti-moon", "ti-sun");
+      i.classList.add(dark ? "ti-sun" : "ti-moon");
+    } else {
+      btn.textContent = dark ? "☀️" : "🌙";
+    }
   }
   btn.addEventListener("click", () => {
     const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";

@@ -86,7 +86,7 @@ function renderTabs() {
   const html = order.map(st => {
     const n = counts[st] || 0;
     const active = activeStatusTabs.has(st);
-    return `<button class="${active ? 'active' : ''}" data-status="${st}">${STATUS_LABELS[st]} (${n})</button>`;
+    return `<button class="${active ? 'active' : ''}" data-status="${st}"><span class="st-label">${STATUS_LABELS[st]}</span><span class="st-count" aria-label="antall">${n}</span></button>`;
   }).join("");
   $("status-tabs").innerHTML = html;
   document.querySelectorAll("#status-tabs button").forEach(b => {
@@ -306,14 +306,96 @@ function row(l, rank) {
       </select>
     </td>
     <td class="actions-cell">
-      <button class="small" onclick="openLink('/api/leads/${l.orgnr}/website')" title="Hjemmeside">🌐</button>
-      <button class="small" onclick="openLink('/api/leads/${l.orgnr}/proff')" title="Proff.no">P</button>
-      <button class="small" onclick="openLinkedIn('${l.orgnr}', '${esc(l.navn)}')" title="LinkedIn">in</button>
-      <button class="small" onclick="fetchProffData('${l.orgnr}', '${esc(l.navn)}')" title="Hent styre+nøkkeltall">📊</button>
-      <button class="small" onclick="openLinkParent('${l.orgnr}', '${esc(l.navn)}')" title="Knytt til hovedselskap (lead-til-lead)">🔗</button>
+      <button class="small action-btn action-btn--primary" onclick="openLink('/api/leads/${l.orgnr}/website')" title="Åpne hjemmeside" aria-label="Åpne hjemmeside">
+        <i class="ti ti-world" aria-hidden="true"></i><span class="action-label">Web</span>
+      </button>
+      <button class="small action-btn action-btn--primary" onclick="openLinkedIn('${l.orgnr}', '${esc(l.navn)}')" title="Åpne LinkedIn-søk" aria-label="LinkedIn">
+        <i class="ti ti-brand-linkedin" aria-hidden="true"></i><span class="action-label">in</span>
+      </button>
+      <button class="small action-btn action-btn--primary" onclick="openLink('/api/leads/${l.orgnr}/proff')" title="Åpne Proff.no" aria-label="Proff.no">
+        <i class="ti ti-chart-bar" aria-hidden="true"></i><span class="action-label">Proff</span>
+      </button>
+      <div class="action-more">
+        <button class="small action-btn action-more-btn" data-orgnr="${l.orgnr}" data-navn="${esc(l.navn)}" title="Flere handlinger" aria-label="Flere handlinger" aria-haspopup="menu" aria-expanded="false">
+          <i class="ti ti-dots" aria-hidden="true"></i>
+        </button>
+      </div>
     </td>
   </tr>`;
 }
+
+/* === «Flere handlinger»-meny i lead-rad ============================
+   Bygger en lett popover med to handlinger (Hent styre+nøkkeltall, Knytt
+   til hovedselskap) ved klikk på ⋯-knappen. Lukkes ved klikk utenfor
+   eller ved Escape. Holdes i ett (1) felles popover-element. */
+function _ensureLeadActionPopover() {
+  let pop = document.getElementById("lead-action-popover");
+  if (pop) return pop;
+  pop = document.createElement("div");
+  pop.id = "lead-action-popover";
+  pop.className = "lead-action-popover";
+  pop.setAttribute("role", "menu");
+  pop.hidden = true;
+  document.body.appendChild(pop);
+  document.addEventListener("click", (e) => {
+    if (pop.hidden) return;
+    if (e.target.closest("#lead-action-popover")) return;
+    if (e.target.closest(".action-more-btn")) return;
+    _closeLeadActionPopover();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !pop.hidden) _closeLeadActionPopover();
+  });
+  window.addEventListener("scroll", _closeLeadActionPopover, true);
+  window.addEventListener("resize", _closeLeadActionPopover);
+  return pop;
+}
+function _closeLeadActionPopover() {
+  const pop = document.getElementById("lead-action-popover");
+  if (!pop || pop.hidden) return;
+  pop.hidden = true;
+  const cur = document.querySelector('.action-more-btn[aria-expanded="true"]');
+  if (cur) cur.setAttribute("aria-expanded", "false");
+}
+function _openLeadActionPopover(btn) {
+  const pop = _ensureLeadActionPopover();
+  const orgnr = btn.dataset.orgnr;
+  const navn = btn.dataset.navn || "";
+  pop.innerHTML = `
+    <button type="button" class="lead-action-item" data-act="proff">
+      <i class="ti ti-chart-histogram" aria-hidden="true"></i>Hent styre + nøkkeltall
+    </button>
+    <button type="button" class="lead-action-item" data-act="link-parent">
+      <i class="ti ti-link" aria-hidden="true"></i>Knytt til hovedselskap
+    </button>
+  `;
+  pop.querySelectorAll(".lead-action-item").forEach(it => {
+    it.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const act = it.dataset.act;
+      _closeLeadActionPopover();
+      if (act === "proff") fetchProffData(orgnr, navn);
+      else if (act === "link-parent") openLinkParent(orgnr, navn);
+    });
+  });
+  /* Posisjoner under knappen, justert til høyre kant */
+  const r = btn.getBoundingClientRect();
+  pop.hidden = false;
+  const pw = pop.offsetWidth || 220;
+  const left = Math.max(8, Math.min(window.innerWidth - pw - 8, r.right - pw));
+  const top = r.bottom + 4;
+  pop.style.left = left + "px";
+  pop.style.top = top + "px";
+  btn.setAttribute("aria-expanded", "true");
+}
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest(".action-more-btn");
+  if (!btn) return;
+  e.stopPropagation();
+  const expanded = btn.getAttribute("aria-expanded") === "true";
+  if (expanded) _closeLeadActionPopover();
+  else { _closeLeadActionPopover(); _openLeadActionPopover(btn); }
+});
 
 let _leadsFilterRenderTimer = null;
 function _scheduleLeadsFilterRender() {
