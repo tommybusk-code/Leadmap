@@ -12,6 +12,8 @@ async function switchView(view) {
   document.querySelectorAll(".main-tab").forEach(b => b.classList.toggle("active", b.dataset.view === view));
   $("view-leads").hidden = view !== "leads";
   $("view-customers").hidden = view !== "customers";
+  if ($("view-map")) $("view-map").hidden = view !== "map";
+  if (view === "map") { if (window.MapView) MapView.show(); }
   if (view === "customers") {
     selectedCustomers.clear();
     await loadCustomers();

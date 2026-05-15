@@ -8,6 +8,7 @@ from state import app, import_xlsx_if_empty
 
 import customers  # noqa: F401 — web_api blueprint
 import analysis  # noqa: F401 — /api/analyze
+import map_api    # noqa: F401 — /api/leads/map (kart-visning)
 
 
 @app.route("/")
