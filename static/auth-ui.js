@@ -209,6 +209,19 @@
 
   document.addEventListener("DOMContentLoaded", async () => {
     const invite = readInviteFromUrl();
+    // Må registreres før eventuelle `return` under (f.eks. auth_relaxed), ellers virker ikke «Brukere» / Logg ut / invitasjon.
+    const lo = $("btn-auth-logout");
+    if (lo) {
+      lo.addEventListener("click", async () => {
+        await fetchJSON("/api/auth/logout", { method: "POST" });
+        window.location.reload();
+      });
+    }
+    const ba = $("btn-auth-admin");
+    if (ba) ba.addEventListener("click", () => openAdminModal());
+    const bi = $("btn-admin-invite-create");
+    if (bi) bi.addEventListener("click", () => createInvite());
+
     try {
       const m = await fetchJSON("/api/auth/me");
       window.LEADMAP_AUTH = m;
@@ -228,17 +241,6 @@
       console.warn("[auth-ui]", e);
     }
 
-    const lo = $("btn-auth-logout");
-    if (lo) {
-      lo.addEventListener("click", async () => {
-        await fetchJSON("/api/auth/logout", { method: "POST" });
-        window.location.reload();
-      });
-    }
-    const ba = $("btn-auth-admin");
-    if (ba) ba.addEventListener("click", () => openAdminModal());
-    const bi = $("btn-admin-invite-create");
-    if (bi) bi.addEventListener("click", () => createInvite());
     const params = new URLSearchParams(window.location.search);
     const err = params.get("auth_error");
     if (err) {
