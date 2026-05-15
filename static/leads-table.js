@@ -492,4 +492,7 @@ syncLeadsTableChrome();
       alert("Eksport feilet: " + (ex && ex.message ? ex.message : ex));
     }
   });
+
+  // Eksponér filtrerte leads for kart-visning
+  window.getLeadsForMap = () => getFilteredSortedLeads();
 })();

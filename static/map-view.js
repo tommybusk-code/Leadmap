@@ -13,6 +13,7 @@ window.MapView = (() => {
   let allLeads = [];
   let allAnchors = [];
   let initialized = false;
+  let useTableFilter = true;  // bruk filtrert tabell-state som standard
 
   // ── Fargeskala ────────────────────────────────────────────────
   function scoreColor(score) {
@@ -70,6 +71,9 @@ window.MapView = (() => {
         <label style="display:flex;align-items:center;gap:4px;cursor:pointer;user-select:none">
           <input type="checkbox" id="map-show-anchors" checked>Vis kunder (ankere)
         </label>
+        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;user-select:none">
+          <input type="checkbox" id="map-use-filter" checked>Bruk tabellfilter
+        </label>
         <span style="flex:1"></span>
         <div style="display:flex;gap:10px;align-items:center;font-size:11px;color:#555">
           <span><svg width="11" height="11"><circle cx="5.5" cy="5.5" r="5" fill="#16a34a"/></svg> ≥70</span>
@@ -88,6 +92,10 @@ window.MapView = (() => {
 
     document.getElementById('map-reload-btn').addEventListener('click', reload);
     document.getElementById('map-show-anchors').addEventListener('change', renderMarkers);
+    document.getElementById('map-use-filter').addEventListener('change', e => {
+      useTableFilter = e.target.checked;
+      reload();
+    });
   }
 
   // ── Popup: lead ───────────────────────────────────────────────
@@ -160,16 +168,43 @@ window.MapView = (() => {
     if (el) el.textContent = `${allLeads.length} leads på kart`;
   }
 
-  // ── Hent data ─────────────────────────────────────────────────
+  // ── Hent data — fra filtrert tabell eller API ─────────────────
   async function reload() {
     const btn = document.getElementById('map-reload-btn');
     if (btn) { btn.textContent = '⏳'; btn.disabled = true; }
     try {
-      const res = await fetch('/api/leads/map');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      allLeads = data.leads || [];
-      allAnchors = data.anchors || [];
+      if (useTableFilter && typeof window.getLeadsForMap === 'function') {
+        // Bruk allerede-filtrerte leads fra tabellen (har geo_lat/geo_lon)
+        const tableLeads = window.getLeadsForMap();
+        allLeads = tableLeads
+          .filter(l => l.geo_lat != null && l.geo_lon != null)
+          .map(l => ({
+            orgnr: String(l.orgnr || ''),
+            navn: l.navn || '',
+            score: Math.round((l.score || 0) * 10) / 10,
+            lat: parseFloat(l.geo_lat),
+            lon: parseFloat(l.geo_lon),
+            antallAnsatte: l.antallAnsatte,
+            kommune: l.forretningsadresse_kommune || l.kommunenavn || '',
+            status: l.status || 'Ny',
+            geo_tier: l.geo_tier || '',
+            geoscore: l.geoscore,
+            signals: (l.signals || []).map(s => s.type || s).filter(Boolean),
+          }));
+        // Ankere hentes fortsatt fra API (kunder er ikke i leads-state)
+        if (!allAnchors.length) {
+          const res = await fetch('/api/leads/map');
+          if (res.ok) allAnchors = (await res.json()).anchors || [];
+        }
+      } else {
+        // Hent alt fra API (ingen filter)
+        const res = await fetch('/api/leads/map');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        allLeads = data.leads || [];
+        allAnchors = data.anchors || [];
+      }
+
       renderMarkers();
       if (allLeads.length > 0) {
         const pts = allLeads.map(l => [l.lat, l.lon]);
