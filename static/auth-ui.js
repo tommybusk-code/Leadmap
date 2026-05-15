@@ -36,7 +36,8 @@
     const label = $("hdr-auth-label");
     const lo = $("btn-auth-logout");
     if (relaxed) {
-      if (label) label.textContent = user ? `${user.name || user.email} (ingen OAuth)` : "";
+      // Brukernavnet fra API inneholder allerede «ingen OAuth»; ikke legg til suffix (unngå duplikat).
+      if (label) label.textContent = user ? (user.name || user.email || "").trim() : "";
       if (lo) lo.hidden = true;
       applyPermissionUi(
         user || {
