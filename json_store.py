@@ -45,7 +45,11 @@ def load_json(p, default, *, deep_copy=True):
 
 
 def save_json(p, data):
-    """Atomisk JSON-save."""
+    """Atomisk JSON-save. Invaliderer mtime-cache slik at neste load_json leser fra disk."""
+    # Cache oppdateres ikke her: tidligere variant `deepcopy(data)` i write-pathen var dyr
+    # for store filer (leads.json) og ble bortkastet ved write-only sekvenser (f.eks. periodiske
+    # save under analyse/geo). Invalidering er trygt fordi disk er kilden — neste load_json
+    # leser via json.loads (C) og repopulerer cachen.
     p = Path(p)
     p.parent.mkdir(parents=True, exist_ok=True)
     payload = json.dumps(data, ensure_ascii=False, indent=1)
@@ -62,9 +66,5 @@ def save_json(p, data):
                 os.unlink(tmp_name)
         except Exception:
             pass
-    try:
-        mtime = p.stat().st_mtime
-    except Exception:
-        mtime = None
     with _json_cache_lock:
-        _json_cache[str(p)] = (mtime, copy.deepcopy(data))
+        _json_cache.pop(str(p), None)
