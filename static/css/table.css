@@ -1,0 +1,318 @@
+/* ============================================================
+   table.css — Tabellen er hovedproduktet. Premium floating-panel
+   med sticky thead, soft hover, status-indikatorer, sortering.
+   Inkluderer også score-cell, sig-tag, anker-cell, actions-cell,
+   editable-abo, og kunde-spesifikke overstyringer.
+   ============================================================ */
+
+/* === Tabell-container === */
+table {
+  width: 100%; border-collapse: separate; border-spacing: 0;
+  background: var(--surface); table-layout: fixed; font-size: 12.5px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm); overflow: hidden;
+}
+
+/* === Sticky header med blur === */
+thead th {
+  color: var(--muted);
+  padding: var(--space-3) var(--space-3); text-align: left;
+  font-weight: 600; font-size: 11px;
+  text-transform: uppercase; letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 5;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: saturate(180%) blur(8px);
+  -webkit-backdrop-filter: saturate(180%) blur(8px);
+}
+thead th:first-child { border-top-left-radius: var(--radius-lg); }
+thead th:last-child  { border-top-right-radius: var(--radius-lg); }
+
+/* === Body-celler === */
+tbody td {
+  padding: 10px 10px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  color: var(--text);
+}
+tbody td.wrap { white-space: normal; }
+tbody tr { cursor: pointer; transition: background-color 0.12s ease; }
+tbody tr:hover { background: rgba(99, 102, 241, 0.04); }
+
+/* Smale tall-kolonner — kun leads-tabellen (#, Score, Ans.) */
+#leads-table tbody td:first-child,
+#leads-table tbody td:nth-child(2),
+#leads-table tbody td:nth-child(6) {
+  padding-left: var(--space-3); padding-right: var(--space-1);
+  text-align: left; font-variant-numeric: tabular-nums;
+}
+
+/* Status-indikator som inset-strek (ikke follow-up — unødvendig støy på navn-celle) */
+tbody tr.s-kontaktet td     { box-shadow: inset 3px 0 0 var(--status-kontaktet); }
+tbody tr.s-vunnet td,
+tbody tr.s-datterselskap td,
+tbody tr.s-eksisterende_kunde td,
+tbody tr.s-konsern_kunde td { box-shadow: inset 3px 0 0 var(--success); }
+tbody tr.s-ikke_aktuell     { color: var(--muted-soft); }
+tbody tr.s-ikke_aktuell td  { text-decoration: line-through; }
+
+/* Avrundede hjørner på siste rad */
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:last-child td:first-child { border-bottom-left-radius: var(--radius-lg); }
+tbody tr:last-child td:last-child  { border-bottom-right-radius: var(--radius-lg); }
+
+/* === Sorterbare headers — inline pil med fade === */
+th.sortable {
+  cursor: pointer; user-select: none;
+  white-space: nowrap; overflow: hidden;
+  transition: color 0.12s ease;
+}
+th.sortable:hover { color: var(--text); }
+th.sortable::after {
+  content: "↕"; opacity: 0; display: inline-block;
+  margin-left: 5px; font-size: 11px;
+  transition: opacity 0.15s ease;
+}
+th.sortable:hover::after            { opacity: 0.4; }
+th.sortable.sort-asc::after         { content: "↑"; opacity: 1; color: var(--primary); }
+th.sortable.sort-desc::after        { content: "↓"; opacity: 1; color: var(--primary); }
+th.sortable.sorted                  { color: var(--text); font-weight: 700; }
+
+/* === Score-pille === */
+.score-cell {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 32px; padding: 3px var(--space-2);
+  border-radius: var(--radius-sm);
+  font-weight: 600; font-size: 12px; letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+.score-high { background: var(--success-bg); color: #047857; }
+.score-mid  { background: var(--warning-bg); color: #b45309; }
+.score-low  { background: var(--surface-2); color: var(--muted); }
+
+/* === Signal-tags (lead-scoring chips) === */
+.sig-list { display: flex; flex-wrap: wrap; gap: var(--space-1); }
+/* Leads-tabell + andre visninger som skal matche tabell-pillene (tett, samme font) */
+#leads-table .sig-list--table,
+.sig-list.sig-list--like-table {
+  gap: 4px;
+  row-gap: 4px;
+}
+#leads-table .sig-list--table .sig-tag,
+.sig-list.sig-list--like-table .sig-tag {
+  font-size: 10.5px;
+  padding: 1px 6px;
+  max-width: 100%;
+}
+.sig-list.sig-list--like-table .sig-combo-part {
+  font-size: 9px;
+  padding: 1px 4px;
+}
+.sig-list.sig-list--like-table .sig-combo-x {
+  font-size: 9px;
+  padding: 0 2px;
+}
+.sig-list.sig-list--like-table .sig-combo-pts {
+  font-size: 8px;
+  padding: 1px 4px;
+}
+.sig-tag.sig-more {
+  background: var(--surface-2);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  font-weight: 600;
+  cursor: help;
+}
+.sig-tag {
+  display: inline-flex; align-items: center;
+  font-size: 11px; padding: 2px var(--space-2);
+  border-radius: var(--radius-pill);
+  font-weight: 500; line-height: 1.5;
+  letter-spacing: -0.005em;
+  border: 1px solid transparent;
+}
+.sig-tag.t-felles_styreleder     { background: var(--sig-styreleder-bg);  color: var(--sig-styreleder); }
+.sig-tag.t-felles_styremedlem    { background: var(--sig-styremedlem-bg); color: var(--sig-styremedlem); }
+.sig-tag.t-selskap_i_vekst       { background: var(--sig-vekst-bg);       color: #92400e; }
+.sig-tag.t-samme_bransje         { background: var(--sig-bransje-bg);     color: #1d4ed8; }
+.sig-tag.t-nabobedrift_kommune   { background: #fecdd3; color: #881337; border: 1px solid #fda4af; }
+.sig-tag.t-nabobedrift_postnummer{ background: #ffe4e6; color: #9f1239; border: 1px solid #fecdd3; }
+.sig-tag.t-kunde_morselskap      { background: #ede9fe; color: #5b21b6; border: 1px solid #c4b5fd; }
+.sig-tag.t-kunde_konserntre      { background: #e0e7ff; color: #3730a3; border: 1px solid #a5b4fc; }
+.sig-tag.t-kunde_aksjeeierbok    { background: #f3e8ff; color: #6b21a8; border: 1px solid #d8b4fe; }
+/* Klikkbar heleid aksjonær-pille (leads-tabell / detalj): samme farger, tydelig hover */
+.sig-tag.sig-tag--promote-bok { cursor: pointer; }
+.sig-tag.sig-tag--promote-bok:hover {
+  filter: brightness(0.96);
+  box-shadow: 0 0 0 1px rgba(107, 33, 168, 0.35);
+}
+
+/* Geo-tiers: adresse lysast (rosa), postnr mellom, kommune tydeligst; fylke nøytral */
+.sig-tag.geo-tag { font-weight: 600; border: 1px solid var(--border); }
+.sig-tag.geo-tag.g-fylke {
+  background: #f4f4f5;
+  color: #71717a;
+  border-color: #e4e4e7;
+}
+.sig-tag.geo-tag.g-kommune {
+  background: #fecdd3;
+  color: #881337;
+  border-color: #fda4af;
+}
+.sig-tag.geo-tag.g-postnr {
+  background: #ffe4e6;
+  color: #9f1239;
+  border-color: #fecdd3;
+}
+.sig-tag.geo-tag.g-adresse {
+  background: #fff7f7;
+  color: #be123c;
+  border-color: #ffe4e6;
+  font-weight: 700;
+}
+
+/* Kryss-treff (bransje + geo, samme anker): tofarget «klynge» + diskret poeng */
+.sig-tag.sig-combo {
+  display: inline-flex;
+  align-items: stretch;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid rgba(99, 102, 241, 0.22);
+  background: var(--surface);
+  font-weight: 600;
+  gap: 0;
+}
+.sig-combo-part {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  font-size: 10px;
+  letter-spacing: 0.01em;
+}
+.sig-combo-b {
+  background: var(--sig-bransje-bg);
+  color: #1d4ed8;
+}
+.sig-combo-g.g-fylke {
+  background: #f4f4f5;
+  color: #71717a;
+  border-left: 1px solid #e4e4e7;
+}
+.sig-combo-g.g-kommune {
+  background: #fecdd3;
+  color: #881337;
+  border-left: 1px solid #fda4af;
+}
+.sig-combo-g.g-postnr {
+  background: #ffe4e6;
+  color: #9f1239;
+  border-left: 1px solid #fecdd3;
+}
+.sig-combo-g.g-adresse {
+  background: #fff7f7;
+  color: #be123c;
+  font-weight: 700;
+  border-left: 1px solid #ffe4e6;
+}
+.sig-combo-x {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 3px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  background: rgba(99, 102, 241, 0.1);
+}
+.sig-combo-pts {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 5px;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--muted);
+  border-left: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+.sig-tag.sig-multi {
+  background: #fdf2f8;
+  color: #9d174d;
+  border: 1px solid rgba(190, 24, 93, 0.18);
+  font-weight: 600;
+}
+
+/* === Anker-celle: navn + "+N" === */
+.anker-cell {
+  display: flex; align-items: center; gap: var(--space-1); min-width: 0;
+}
+.anker-name {
+  flex: 1 1 auto; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.anker-more {
+  flex: 0 0 auto; color: var(--muted); font-weight: 600;
+}
+
+/* === Handlinger-celle === */
+.actions-cell { white-space: nowrap; padding-left: 6px; padding-right: var(--space-2); }
+.actions-cell button {
+  margin: 0 1px; padding: var(--space-1) 6px;
+  min-width: 26px; vertical-align: middle;
+}
+
+/* === Status-select inline i raden === */
+.status-select {
+  font-size: 11px; padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border); background: var(--surface);
+  cursor: pointer; max-width: 100%; color: var(--text);
+  font-family: inherit; transition: all 0.15s ease;
+}
+.status-select:hover {
+  border-color: var(--border-strong); background: var(--surface-2);
+}
+.status-select:focus {
+  outline: none; border-color: var(--primary-light);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.12);
+}
+
+/* === Editable abonnementer (Kunder-fanen) === */
+.editable-abo {
+  border: 1px solid transparent; background: transparent;
+  width: 60px; padding: 2px 6px; font-size: 12px;
+  text-align: right; border-radius: 3px;
+}
+.editable-abo:hover  { border-color: var(--border); background: var(--surface); }
+.editable-abo:focus  {
+  outline: none; border-color: var(--primary-light); background: #fffbeb;
+}
+
+/* === Kunder-spesifikke tabell-justeringer === */
+#customers-table { font-size: 11px; }
+#customers-table td { padding: 5px 6px; }
+
+/* Kunder-fanen: innrykk styres med inline padding-left (ikke !important — ellers vises ikke treet). */
+#customers-tab-table td.cust-tree-name {
+  vertical-align: middle;
+}
+#customers-tab-table td.cust-tree-name.cust-child {
+  color: var(--muted);
+}
+#customers-tab-table td.cust-tree-name.cust-child::before {
+  content: "↳ ";
+  color: var(--primary);
+  margin-right: 2px;
+  opacity: 0.85;
+}
+
+/* === Preview-tabell ved import === */
+#preview-table        { font-size: 11px; }
+#preview-table th     { background: var(--bg); padding: 6px; }
+#preview-table td     { padding: var(--space-1) 6px; }
+
+/* === Kind-badges i Kunder-fanen === */
+.kind-avdeling   { color: var(--primary); }
+.kind-manual     { color: var(--sig-vekst); }
+.kind-datter     { color: var(--sig-styreleder); }

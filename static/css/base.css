@@ -1,0 +1,52 @@
+/* ============================================================
+   base.css — Reset, base typography, utility classes, animations,
+   og felles inline-elementer (anchor-link).
+   ============================================================ */
+
+* { box-sizing: border-box; }
+
+html, body {
+  font-family: var(--font-sans);
+  margin: 0; padding: 0;
+  background: var(--bg); color: var(--text);
+  font-size: 13px; line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.005em;
+}
+
+/* === Animations (gjenbrukes på tvers av komponenter) === */
+@keyframes spin    { to { transform: rotate(360deg); } }
+@keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* === Utility-klasser (brukt av JS-genererte HTML-strenger) === */
+.muted              { color: var(--muted); font-size: 12px; }
+small.muted,
+.small-muted        { color: var(--muted); font-size: 11px; }
+.tiny               { font-size: 11px; }
+.muted-block        { color: var(--muted); display: block; }
+.danger-text        { color: var(--danger); }
+.success-text       { color: var(--sig-vekst); }
+.row-clickable      { cursor: pointer; }
+
+.btn-tiny           { font-size: 10px; padding: 1px 6px; }
+.btn-mini           { font-size: 11px; padding: 2px 8px; margin-left: 8px; }
+
+.section-divider {
+  grid-column: 1/-1;
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-2); margin-top: 6px;
+  color: var(--muted); font-size: 11px;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+
+/* === Anker-link (klikkbar firmanavn i lead-detalj) === */
+.anchor-link {
+  cursor: pointer; color: var(--primary); text-decoration: none;
+  border-bottom: 1px dashed var(--primary-light);
+}
+.anchor-link:hover { color: var(--primary-light); border-bottom-style: solid; }

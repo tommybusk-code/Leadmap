@@ -1,0 +1,137 @@
+/* ============================================================
+   buttons.css — Alle button-stiler. Hierarchy:
+     - default (light surface)
+     - .primary / .modal button — solid indigo
+     - .secondary — eksplisitt lys
+     - .small — mindre versjon
+     - .danger — rød
+     - .actions-main button — header action-bar (subtil, indigo accent på hover)
+     - .ms-actions button.ms-clear — primary i dropdown
+     - #run-status — pill-badge i header
+   ============================================================ */
+
+button {
+  background: var(--surface); color: var(--text);
+  border: 1px solid var(--border);
+  padding: 7px 13px; border-radius: var(--radius-sm);
+  cursor: pointer; font-size: 12px; font-weight: 500;
+  font-family: inherit; letter-spacing: -0.005em;
+  transition: all 0.15s var(--ease);
+  box-shadow: var(--shadow-xs);
+}
+button:hover:not(:disabled) {
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+button:active:not(:disabled) { transform: translateY(0); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Primary indigo — modal-actions og eksplisitte .primary */
+.modal button:not(.secondary):not(.danger):not(.small),
+button.primary {
+  background: var(--primary); color: #fff; border-color: var(--primary);
+  box-shadow: 0 1px 2px rgba(79, 70, 229, 0.18);
+}
+.modal button:not(.secondary):not(.danger):not(.small):hover,
+button.primary:hover {
+  background: var(--primary-hover); border-color: var(--primary-hover);
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+}
+
+/* Header action-bar + handlingspanel — samme knappestil */
+.actions-main button,
+.app-actions-inner > button {
+  display: inline-flex;
+  align-items: center;
+  background: var(--surface); color: var(--text);
+  border: 1px solid var(--border); box-shadow: var(--shadow-xs);
+  width: 100%;
+  text-align: center;
+  justify-content: center;
+}
+.actions-main button:hover:not(:disabled),
+.app-actions-inner > button:hover:not(:disabled) {
+  background: var(--surface-2); border-color: var(--border-strong);
+  color: var(--primary);
+}
+
+/* Nullstill filtre — subtilt */
+.filters button#btn-reset-filters {
+  background: var(--surface); color: var(--muted);
+  border: 1px solid var(--border);
+}
+.filters button#btn-reset-filters:hover {
+  background: var(--surface-2); color: var(--text);
+}
+
+/* "Fjern alle" i dropdown — primary action */
+.ms-actions button.ms-clear {
+  background: var(--primary); color: #fff; border-color: var(--primary);
+  padding: 5px 12px; font-size: 11px;
+}
+.ms-actions button.ms-clear:hover {
+  background: var(--primary-hover); border-color: var(--primary-hover);
+}
+
+button.secondary,
+.modal button.secondary {
+  background: var(--surface); color: var(--text);
+  border: 1px solid var(--border); box-shadow: var(--shadow-xs);
+}
+button.secondary:hover {
+  background: var(--surface-2); border-color: var(--border-strong);
+}
+
+button.small {
+  background: var(--surface); color: var(--text);
+  border: 1px solid var(--border);
+  padding: var(--space-1) var(--space-2);
+  font-size: 11px; min-width: 26px; font-weight: 500;
+  border-radius: var(--radius-xs);
+}
+button.small:hover {
+  background: var(--surface-2); color: var(--primary);
+  border-color: var(--border-strong);
+}
+
+button.danger {
+  background: var(--danger); color: #fff; border-color: var(--danger);
+  box-shadow: 0 1px 2px rgba(239, 68, 68, 0.18);
+}
+button.danger:hover:not(:disabled) {
+  background: #dc2626; border-color: #dc2626;
+}
+
+/* Run-status pill (header / handlingspanel) */
+#run-status {
+  color: var(--muted); margin-left: var(--space-1);
+  font-size: 11px; font-weight: 500;
+  background: var(--surface-2); padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  transition: all 0.15s;
+}
+#run-status[style*="cursor"] { cursor: pointer; }
+#run-status:hover {
+  background: var(--primary-50); color: var(--primary);
+  border-color: var(--primary-100);
+}
+#run-status:empty { display: none; }
+
+/* Expand-knapp for underselskaper (Kunder-fanen) */
+.expand-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px; padding: 0; margin-right: var(--space-2);
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--muted); border-radius: var(--radius-xs);
+  font-weight: 500; font-size: 12px; cursor: pointer;
+  line-height: 1; vertical-align: middle;
+  box-shadow: none; transition: all 0.12s ease;
+}
+.expand-btn:hover {
+  background: var(--surface-2); color: var(--primary);
+  border-color: var(--border-strong); transform: none;
+}
+.expand-btn-spacer { display: inline-block; width: 28px; }

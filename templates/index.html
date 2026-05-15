@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <title>LeadMap</title>
+  <script src="/static/theme-init.js"></script>
+  <link rel="icon" type="image/jpeg" href="/static/brand/leadmap-light.jpg">
+  <link rel="stylesheet" href="/static/style.css?v=114">
+  <!-- Festet menyflik (viewport) + posisjon når skuff er åpen -->
+  <style id="leadmap-actions-panel-lock">
+    #app-actions-panel.app-actions-panel {
+      position: fixed !important;
+      left: 0 !important;
+      right: auto !important;
+      top: var(--app-header-offset, 132px) !important;
+      bottom: auto !important;
+      width: auto !important;
+      max-width: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      z-index: 90 !important;
+      display: block !important;
+      height: calc(100vh - var(--app-header-offset, 132px)) !important;
+      pointer-events: none !important;
+      box-sizing: border-box !important;
+    }
+    #app-actions-panel .app-actions-drawer {
+      pointer-events: auto !important;
+    }
+    #app-actions-toggle.app-actions-toggle {
+      position: fixed !important;
+      top: calc(var(--app-header-offset, 132px) + 4px) !important;
+      left: 0;
+      z-index: 100 !important;
+      margin: 0 !important;
+      pointer-events: auto !important;
+    }
+    body:has(#app-actions-panel:not(.is-collapsed)) #app-actions-toggle.app-actions-toggle {
+      left: min(232px, calc(100vw - var(--app-actions-toggle-size, 32px)));
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="hdr-row hdr-row--compact">
+    <h1 class="brand-heading">
+      <a href="/" class="brand-link" aria-label="LeadMap">
+        <img class="brand-logo brand-logo--light" src="/static/brand/leadmap-light.jpg" width="640" height="426" alt="LeadMap" decoding="async" fetchpriority="high">
+        <img class="brand-logo brand-logo--dark" src="/static/brand/leadmap-dark.jpg" width="640" height="426" alt="" aria-hidden="true" decoding="async">
+      </a>
+    </h1>
+    <div class="hdr-trailing hdr-trailing--compact">
+      <div class="stats" id="stats"></div>
+      <div id="hdr-auth-slot" class="hdr-auth-slot muted" style="display:flex;align-items:center;gap:8px;font-size:13px;flex-wrap:wrap;justify-content:flex-end">
+        <span id="hdr-auth-label"></span>
+        <button type="button" id="btn-auth-admin" class="secondary" hidden>Brukere</button>
+        <button type="button" id="btn-auth-logout" class="secondary" hidden>Logg ut</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<button type="button" id="app-actions-toggle" class="app-actions-toggle" aria-expanded="true" aria-controls="app-actions-drawer" title="Skjul handlingspanel" aria-label="Skjul handlingspanel">
+  <svg class="app-actions-toggle-svg" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <g class="app-actions-ico-burger" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <line x1="4" y1="8" x2="20" y2="8"/>
+      <line x1="4" y1="12" x2="20" y2="12"/>
+      <line x1="4" y1="16" x2="20" y2="16"/>
+    </g>
+    <g class="app-actions-ico-close" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <line x1="6" y1="6" x2="18" y2="18"/>
+      <line x1="18" y1="6" x2="6" y2="18"/>
+    </g>
+  </svg>
+</button>
+
+<aside id="app-actions-panel" class="app-actions-panel" aria-label="Handlinger">
+  <div id="app-actions-drawer" class="app-actions-drawer" role="region" aria-label="Analyser og innstillinger">
+    <div class="app-actions-inner">
+      <button type="button" id="btn-theme-toggle" class="theme-toggle theme-toggle--panel secondary" aria-label="Bytt til mørk modus" title="Mørk modus">🌙</button>
+      <button id="btn-analyze" title="Inkrementell analyse — discovery og roller; Kartverket kun for nylig oppdagede leads (ikke hele listen). Bruk «Geo + score» for alle.">Kjør analyse</button>
+      <button type="button" id="btn-analyze-no-geo" class="secondary" title="Samme som «Kjør analyse», men uten nye Kartverket-kall: bruker geo-cache og lagrede koordinater for luftlinje.">Re-analyse uten geo</button>
+      <button id="btn-analyze-full" title="Tømmer discovery-cache og kjører alt på nytt, inkl. Kartverket.">↻ Full re-analyse</button>
+      <button type="button" id="btn-geo-rescore" title="Kun geokoding (Kartverket) og score på nytt — uten full lead-discovery.">🌍 Geo + score</button>
+      <button id="btn-add" title="Legg til ny kunde via brreg-oppslag.">+ Legg til kunde</button>
+      <button id="btn-import" title="Importer kunder fra Excel eller CSV.">⬆ Importer</button>
+      <button id="btn-settings" title="Vekt-innstillinger.">⚙️ Innstillinger</button>
+      <span id="run-status"></span>
+    </div>
+  </div>
+</aside>
+
+<nav class="main-tabs">
+  <button class="main-tab active" data-view="leads">📋 Leads</button>
+  <button class="main-tab" data-view="customers">🏢 Kunder</button>
+</nav>
+
+<div class="setup-banner" id="setup-banner-empty" hidden role="status">
+  <p><strong>Ingen kunder ennå.</strong> Velg et Excel- eller CSV-ark med kundeliste — vi gjenkjenner vanlige kolonnenavn for firmanavn og org.nr.</p>
+  <div class="setup-banner-actions">
+    <button type="button" id="btn-setup-import" class="primary">⬆ Importer kunder</button>
+    <span class="muted">Alternativt: <strong>+ Legg til kunde</strong> for ett firma om gangen.</span>
+  </div>
+</div>
+
+<div id="view-leads">
+
+<section class="status-tabs" id="status-tabs"></section>
+
+<section class="filters">
+  <input type="text" id="f-search" placeholder="Søk navn / org.nr">
+  <div class="ms-wrap"><button class="ms-btn" id="ms-signal-btn">Alle signaler</button><div class="ms-dropdown" id="ms-signal-dropdown" hidden></div></div>
+  <div class="ms-wrap"><button class="ms-btn" id="ms-fylke-btn">Alle fylker</button><div class="ms-dropdown" id="ms-fylke-dropdown" hidden></div></div>
+  <div class="ms-wrap"><button class="ms-btn" id="ms-kommune-btn">Alle kommuner</button><div class="ms-dropdown" id="ms-kommune-dropdown" hidden></div></div>
+  <div class="ms-wrap"><button class="ms-btn" id="ms-anker-btn">Alle ankere</button><div class="ms-dropdown" id="ms-anker-dropdown" hidden></div></div>
+  <label>Min score <input type="number" id="f-minscore" value="0" min="0" max="100" style="width:50px"></label>
+  <label class="f-sort-preset-wrap" title="Geo-sortering bruker luftlinje (lavere meter = nærmere). Velg én anker i filteret for avstand til den kunden.">
+    Sorter
+    <select id="f-sort-preset" style="max-width:200px;font-size:12px">
+      <option value="">Etter kolonne (klikk #/Score/…)</option>
+      <option value="score:desc">Score: høy → lav</option>
+      <option value="geoscore:asc">Geo: nær → fjern (meter)</option>
+      <option value="geoscore:desc">Geo: fjern → nær</option>
+    </select>
+  </label>
+  <button id="btn-reset-filters" class="secondary" style="font-size:11px;padding:5px 10px">Nullstill filtre</button>
+  <button type="button" id="btn-export-leads-xlsx" class="secondary" style="font-size:11px;padding:5px 10px" title="Eksporter alle treff i gjeldende filter til Excel (én rad per lead)">⬇ Excel (filter)</button>
+  <span class="counter" id="counter"></span>
+</section>
+
+<table id="leads-table">
+  <colgroup>
+    <col style="width:60px">
+    <col style="width:76px">
+    <col style="width:280px">
+    <col>
+    <col style="width:150px">
+    <col style="width:64px">
+    <col style="width:110px">
+    <col style="width:120px">
+    <col style="width:190px">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th class="sortable" data-sort="score">Score</th>
+      <th class="sortable" data-sort="navn">Selskap</th>
+      <th>Signaler</th>
+      <th class="sortable" data-sort="anker">Anker</th>
+      <th class="sortable" data-sort="ansatte">Ans.</th>
+      <th class="sortable" data-sort="kommune">Kommune</th>
+      <th class="sortable" data-sort="status">Status</th>
+      <th>Handlinger</th>
+    </tr>
+  </thead>
+  <tbody id="leads-tbody"></tbody>
+</table>
+
+<nav class="table-pager" id="leads-pager" hidden aria-label="Sideinndeling leads">
+  <label class="pager-size">Per side
+    <select id="leads-page-size" class="pager-select">
+      <option value="25">25</option>
+      <option value="50">50</option>
+      <option value="100">100</option>
+      <option value="200">200</option>
+      <option value="500">500</option>
+    </select>
+  </label>
+  <div class="pager-nav">
+    <button type="button" id="leads-prev" class="secondary small">← Forrige</button>
+    <span class="pager-info" id="leads-page-info"></span>
+    <button type="button" id="leads-next" class="secondary small">Neste →</button>
+  </div>
+</nav>
+
+</div><!-- /view-leads -->
+
+<div id="view-customers" hidden>
+  <section class="filters">
+    <button type="button" id="btn-add-customer-tab" class="primary" title="Legg til ny kunde via Brønnøysund (samme som i handlingsmenyen)">+ Legg til kunde</button>
+    <input type="text" id="cust-search-tab" placeholder="Søk i kunder (navn / org.nr)" style="flex:1">
+    <button id="btn-bulk-delete-tab" class="danger" disabled>Slett valgte (<span id="bulk-count-tab">0</span>)</button>
+    <span class="counter" id="cust-counter"></span>
+  </section>
+  <table id="customers-tab-table">
+    <colgroup>
+      <col style="width:32px">
+      <col>
+      <col style="width:110px">
+      <col style="width:140px">
+      <col style="width:160px">
+      <col style="width:80px">
+      <col style="width:100px">
+      <col style="width:90px">
+    </colgroup>
+    <thead>
+      <tr>
+        <th><input type="checkbox" id="cust-check-all-tab"></th>
+        <th class="sortable" data-sort="navn">Navn</th>
+        <th class="sortable" data-sort="orgnr">Org.nr</th>
+        <th class="sortable" data-sort="kommune">Kommune</th>
+        <th class="sortable" data-sort="bransje">Bransje</th>
+        <th class="sortable" data-sort="ansatte">Ansatte</th>
+        <th class="sortable" data-sort="abonnementer">Abonnementer</th>
+        <th class="sortable" data-sort="enriched">Status</th>
+      </tr>
+    </thead>
+    <tbody id="cust-tab-tbody"></tbody>
+  </table>
+
+  <nav class="table-pager" id="cust-pager" hidden aria-label="Sideinndeling kunder">
+    <label class="pager-size">Per side
+      <select id="cust-page-size" class="pager-select">
+        <option value="25">25</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+        <option value="200">200</option>
+        <option value="500">500</option>
+      </select>
+    </label>
+    <div class="pager-nav">
+      <button type="button" id="cust-prev" class="secondary small">← Forrige</button>
+      <span class="pager-info" id="cust-page-info"></span>
+      <button type="button" id="cust-next" class="secondary small">Neste →</button>
+    </div>
+  </nav>
+</div>
+
+<!-- Modal: Progress (analyse/import) -->
+<div class="modal" id="modal-progress" hidden>
+  <div class="modal-content">
+    <h2 id="progress-title">⏳ Kjører...</h2>
+    <div class="progress-spinner" id="progress-spinner"></div>
+    <div class="progress-bar-wrap" id="progress-bar-wrap" hidden>
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <p id="progress-current" style="font-weight:600;text-align:center;margin:10px 0">Starter...</p>
+    <p id="progress-jobs-hint" class="muted" style="font-size:12px;text-align:center;margin:-4px 0 10px 0;line-height:1.35" hidden></p>
+    <div class="progress-log-wrap"><pre id="progress-log"></pre></div>
+    <div style="margin-top:12px;text-align:right">
+      <button class="secondary" id="btn-progress-minimize">Minimer</button>
+      <button class="secondary" id="btn-progress-close" hidden>Lukk</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Legg til datterselskap manuelt -->
+<div class="modal" id="modal-add-sub" hidden>
+  <div class="modal-content">
+    <h2>Legg til datterselskap</h2>
+    <p class="muted" style="font-size:12px">Søk i Brønnøysund (alle vanlige selskapsformer) eller lim inn org.nr. Klikk treff for å koble til forelderen du åpnet fra.</p>
+    <input id="add-sub-search" placeholder="Søk firmanavn…" oninput="searchAddSubsidiary()">
+    <div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <input id="add-sub-orgnr" placeholder="Eller org.nr (9 siffer)" style="flex:1;min-width:160px">
+      <button type="button" class="secondary" onclick="addSubsidiaryByOrgnrField()">Legg til med org.nr</button>
+    </div>
+    <div id="add-sub-results" style="margin-top:10px;max-height:320px;overflow-y:auto"></div>
+    <div style="margin-top:12px;text-align:right">
+      <button class="secondary" onclick="closeModal('modal-add-sub')">Lukk</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Konsern-oversikt -->
+<div class="modal" id="modal-konsern" hidden>
+  <div class="modal-content wide">
+    <h2>🏢 Konsern-oversikt</h2>
+    <p class="muted" style="font-size:12px">Grupper kunder etter detektert morselskap fra brreg konsernregister. Du kan importere morselskap som kunde og koble dattere automatisk.</p>
+    <div id="konsern-body" style="max-height:60vh;overflow-y:auto;margin-top:10px"></div>
+    <div style="margin-top:14px;text-align:right">
+      <button class="secondary" onclick="closeModal('modal-konsern')">Lukk</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Sett moderbedrift (parent_orgnr) -->
+<div class="modal" id="modal-set-parent" hidden>
+  <div class="modal-content">
+    <h2>Marker som datterselskap</h2>
+    <p class="muted" style="font-size:12px">Velg hvilken eksisterende kunde dette er datterselskap av. Datteren flyttes inn under moderbedriften i Kunder-listen.</p>
+    <input id="set-parent-search" placeholder="Søk blant eksisterende kunder..." oninput="searchSetParent()">
+    <div id="set-parent-results" style="margin-top:10px;max-height:340px;overflow-y:auto"></div>
+    <div style="margin-top:12px;text-align:right">
+      <button class="secondary" onclick="closeModal('modal-set-parent')">Avbryt</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Customer detail (klikk på anker fra lead) -->
+<div class="modal" id="modal-cust-detail" hidden>
+  <div class="modal-content wide modal-detail-sheet">
+    <div class="modal-detail-sheet-head">
+      <h2 id="cust-detail-title"></h2>
+    </div>
+    <div id="cust-detail-body" class="modal-detail-scroll"></div>
+    <div class="modal-detail-footer">
+      <button class="secondary" onclick="closeModal('modal-cust-detail')">Lukk</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Add customer -->
+<div class="modal" id="modal-add" hidden>
+  <div class="modal-content">
+    <h2>Legg til ny kunde</h2>
+    <p class="muted">Skriv org.nr (9 siffer) eller selskapsnavn. Forslag dukker opp.</p>
+    <input type="text" id="add-query" placeholder="f.eks. Tess eller 925904937" autocomplete="off">
+    <div id="add-suggestions" class="suggestions" hidden></div>
+    <input type="number" id="add-abonnementer" placeholder="Antall abonnementer (valgfritt)">
+    <div>
+      <button id="btn-add-confirm">Legg til</button>
+      <button class="secondary" onclick="closeModal('modal-add')">Avbryt</button>
+    </div>
+    <pre id="add-result"></pre>
+  </div>
+</div>
+
+<!-- Modal: Promote -->
+<div class="modal" id="modal-promote" hidden>
+  <div class="modal-content">
+    <h2>Markér</h2>
+    <p id="promote-name"></p>
+    <input type="number" id="promote-abo" placeholder="Antall abonnementer" value="50">
+    <div id="parent-picker" hidden>
+      <p class="muted" style="margin-bottom:4px">Velg morselskap:</p>
+      <input type="text" id="parent-query" placeholder="Søk i kundelisten..." autocomplete="off">
+      <div id="parent-suggestions" class="suggestions" hidden></div>
+      <p id="parent-selected" class="muted" style="margin-top:6px"></p>
+    </div>
+    <label><input type="checkbox" id="promote-rerun" checked> Kjør målrettet analyse for denne kunden etterpå (oppdaterer leads)</label>
+    <div>
+      <button id="btn-promote-confirm">Bekreft</button>
+      <button class="secondary" onclick="closeModal('modal-promote')">Avbryt</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: LinkedIn -->
+<div class="modal" id="modal-linkedin" hidden>
+  <div class="modal-content">
+    <h2 id="linkedin-title">LinkedIn-søk</h2>
+    <div class="li-buttons">
+      <button data-role="company">🔍 Selskapet</button>
+      <button data-role="people">👥 Alle ansatte</button>
+      <button data-role="ceo">CEO / Daglig leder</button>
+      <button data-role="it">IT-sjef / CIO</button>
+      <button data-role="innkjop">Innkjøpssjef</button>
+    </div>
+    <button class="secondary" onclick="closeModal('modal-linkedin')">Lukk</button>
+  </div>
+</div>
+
+<!-- Modal: Customers -->
+<!-- Modal: Lead detail -->
+<div class="modal" id="modal-detail" hidden>
+  <div class="modal-content wide modal-detail-sheet">
+    <div class="modal-detail-sheet-head">
+      <h2 id="detail-title"></h2>
+    </div>
+    <div id="detail-body" class="modal-detail-scroll"></div>
+    <div class="modal-detail-footer">
+      <button class="secondary" onclick="closeModal('modal-detail')">Lukk</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Proff -->
+<div class="modal" id="modal-proff" hidden>
+  <div class="modal-content">
+    <h2>Proff-data</h2>
+    <p id="proff-name"></p>
+    <pre id="proff-result">(klikk i tabellen)</pre>
+    <button class="secondary" onclick="closeModal('modal-proff')">Lukk</button>
+  </div>
+</div>
+
+<!-- Modal: Knytt til hovedselskap (lead-til-lead) -->
+<div class="modal" id="modal-link-parent" hidden>
+  <div class="modal-content">
+    <h2>🔗 Knytt til hovedselskap</h2>
+    <p id="link-name" class="muted"></p>
+    <input type="text" id="link-query" placeholder="Søk etter lead..." autocomplete="off">
+    <div id="link-suggestions" class="suggestions" hidden></div>
+    <p id="link-selected" class="muted" style="margin-top:6px"></p>
+    <p id="link-current" class="muted" style="margin-top:6px"></p>
+    <div>
+      <button id="btn-link-confirm">Lagre</button>
+      <button id="btn-link-clear" class="secondary">Fjern kobling</button>
+      <button class="secondary" onclick="closeModal('modal-link-parent')">Avbryt</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Settings -->
+<div class="modal" id="modal-settings" hidden>
+  <div class="modal-content wide">
+    <h2>⚙️ Innstillinger</h2>
+    <p class="muted">Velg hvordan leads skal rangeres. Start med et forhåndsvalg under — eller åpne «Finjuster» bare hvis du vil styre hvert signal selv. <strong>Lagre</strong> oppdaterer alle leads. <strong>Score 0–100</strong> skaleres mot de signaltypene hver lead faktisk har (pluss kryss-/multi-bonus der det gjelder), ikke mot summen av alle mulige signaler — derfor bedre spredning i toppen. «Teoretisk tak» under viser fortsatt verste fall (alle typer) som referanse for sliderne. Geo: samme besøksadresse og postnr veier alltid tyngre enn kun samme postnr, som veier tyngre enn samme kommune — også når du justerer sliderne selv.</p>
+    <div class="settings-section">
+      <h3>Prioritet</h3>
+      <div id="weights-grid" class="settings-weights-wrap"></div>
+    </div>
+
+    <div class="settings-section">
+      <h3>Grenser og dempning</h3>
+      <div class="settings-grid" id="thresholds-grid"></div>
+    </div>
+
+    <div class="settings-section">
+      <div id="max-total-display"></div>
+    </div>
+
+    <div class="settings-help">
+      💡 Poengsummen skaleres automatisk til en lead-score på 0–100. «Grenser» styrer bl.a. minimum ansatte og aksjonærandel.
+    </div>
+    <div class="settings-section">
+      <h3>Vedlikehold</h3>
+      <button class="secondary" id="btn-dedupe">🧹 Dedupliser kunder (samme org.nr → én rad)</button>
+      <button class="secondary" id="btn-refresh-all-related">🔄 Oppdater datter-data for alle kunder (~2-5 min)</button>
+      <button type="button" class="secondary" id="btn-refresh-all-aksjonaerinfo" title="Vanlig klikk: kun nye org.nr siden sist. Shift+klikk: full Brreg-runde for alle noder i alle tre.">📊 Brreg for tre (kun nye siden sist — Shift = alle)</button>
+      <button type="button" class="secondary" id="btn-promote-whole-owned-leads" title="Krever aksjeeierbok-SQLite. Leads som er ≥99 % eid av et selskap i kundetreet flyttes inn som manuell datter under eieren.">🔗 Heleide leads → kundetrær (bok)</button>
+      <button class="secondary" id="btn-konsern-overview">🏢 Konsern-oversikt (review)</button>
+    </div>
+    <div class="settings-section">
+      <h3 style="color:var(--danger)">⚠️ Fareområde</h3>
+      <button class="danger" id="btn-delete-all">Slett ALLE kunder</button>
+    </div>
+    <div style="margin-top:18px">
+      <button type="button" id="btn-settings-save">Lagre</button>
+      <button type="button" id="btn-settings-reset" class="secondary">Balansert (standard)</button>
+      <button class="secondary" onclick="closeModal('modal-settings')">Avbryt</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Import -->
+<div class="modal" id="modal-import" hidden>
+  <div class="modal-content wide">
+    <h2>⬆ Importer kunder</h2>
+    <p class="muted">Last opp Excel (.xlsx) eller CSV med kunder. Kolonnene mappes automatisk.</p>
+    <input type="file" id="import-file" accept=".xlsx,.xls,.csv">
+    <div id="import-preview" hidden>
+      <p id="import-info" class="muted"></p>
+      <div id="import-mapping" style="margin:8px 0;font-size:12px"></div>
+      <div style="max-height:300px;overflow:auto;border:1px solid var(--border);border-radius:6px">
+        <table id="preview-table"></table>
+      </div>
+      <div style="margin-top:12px">
+        <button id="btn-import-confirm">Importer alle</button>
+      </div>
+    </div>
+    <div style="margin-top:14px">
+      <button class="secondary" onclick="closeModal('modal-import')">Lukk</button>
+    </div>
+  </div>
+</div>
+
+<!-- Innlogging / brukeradmin -->
+<div class="modal" id="auth-gate-overlay" hidden>
+  <div class="modal-content" style="max-width:440px">
+    <h2>Logg inn</h2>
+    <p class="muted" id="auth-gate-msg">Du må logge inn med Google for å bruke LeadMap.</p>
+    <p id="auth-gate-invite-hint" class="muted" hidden></p>
+    <p class="muted" id="auth-gate-relaxed" hidden style="font-size:13px">OAuth er ikke konfigurert — appen kjører i åpen modus til GOOGLE_OAUTH_CLIENT_ID/SECRET er satt.</p>
+    <p style="margin-top:14px"><a class="button" id="auth-gate-google-btn" href="/api/auth/google/start">Fortsett med Google</a></p>
+  </div>
+</div>
+
+<div class="modal" id="modal-admin-users" hidden>
+  <div class="modal-content wide">
+    <h2>Brukere og invitasjoner</h2>
+    <div id="admin-users-body" class="muted" style="margin-bottom:14px">Laster…</div>
+    <h3>Ny invitasjonslenke</h3>
+    <div class="settings-grid" style="max-width:520px">
+      <label>Gyldighet (dager)</label><input type="number" id="admin-invite-days" value="14" min="1" max="90">
+      <label>Lås til e-post (valgfritt)</label><input type="email" id="admin-invite-email" placeholder="navn@firma.no">
+      <label>Kan legge til kunder</label><input type="checkbox" id="admin-invite-canadd" checked>
+      <label>Kan full re-analyse</label><input type="checkbox" id="admin-invite-canfull">
+    </div>
+    <p style="margin-top:10px"><button type="button" id="btn-admin-invite-create">Opprett lenke</button></p>
+    <div id="admin-invite-result" style="margin-top:12px"></div>
+    <div style="margin-top:18px"><button type="button" class="secondary" onclick="closeModal('modal-admin-users')">Lukk</button></div>
+  </div>
+</div>
+
+<script src="/static/core.js?v=88"></script>
+<script src="/static/auth-ui.js?v=1"></script>
+<script src="/static/leads-table.js?v=80"></script>
+<script src="/static/leads-detail.js?v=86"></script>
+<script src="/static/customers-tab.js?v=68"></script>
+<script src="/static/customers-modal.js?v=79"></script>
+<script src="/static/customers-konsern.js?v=65"></script>
+<script src="/static/progress.js?v=70"></script>
+<script src="/static/settings.js?v=80"></script>
+<script src="/static/import.js?v=65"></script>
+<script src="/static/features.js?v=76"></script>
+</body>
+</html>

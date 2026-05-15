@@ -1,0 +1,91 @@
+/* ============================================================
+   tokens.css — Design tokens (variables, palette, spacing).
+   Alle øvrige stilark skal kun bruke disse tokens, aldri hardkode farger/sizes.
+   ============================================================ */
+
+:root {
+  /* === Primary (indigo — SaaS-kjerne) === */
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-light: #6366f1;
+  --primary-50: #eef2ff;
+  --primary-100: #e0e7ff;
+
+  /* === Surfaces (kaldere, Linear/Notion-lignende) === */
+  --bg: #f4f6fb;
+  --surface: #ffffff;
+  --surface-2: #f1f5f9;
+
+  /* === Borders === */
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+
+  /* === Text === */
+  --text: #1c1b1f;
+  --muted: #6b6968;
+  --muted-soft: #a09e9c;
+
+  /* === Accents === */
+  --accent-warm: #f59e0b;
+  --accent-mint: #14b8a6;
+  --accent-rose: #f43f5e;
+
+  /* === Semantic === */
+  --success: #10b981;     --success-bg: #d1fae5;
+  --warning: #f59e0b;     --warning-bg: #fef3c7;
+  --danger:  #ef4444;     --danger-bg:  #fee2e2;
+
+  /* Pipeline-status «Kontaktet» — cyan (samme som status-tab prikk), ikke warning/gul */
+  --status-kontaktet: #06b6d4;
+  --status-kontaktet-bg: #ecfeff;
+
+  /* === Signal tags (lead-scoring) === */
+  --sig-styreleder: #dc2626;     --sig-styreleder-bg: #fee2e2;
+  --sig-styremedlem: #ea580c;    --sig-styremedlem-bg: #ffedd5;
+  --sig-vekst: #ca8a04;          --sig-vekst-bg: #fef3c7;
+  --sig-bransje: #2563eb;        --sig-bransje-bg: #dbeafe;
+  --sig-kommune: #e11d48;
+  --sig-kommune-bg: #ffe4e6;
+  --sig-postnr: #f43f5e;
+  --sig-postnr-bg: #fff1f2;
+
+  /* === Spacing scale (use these, ikke hardkode px) === */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* === Radii === */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius:    8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-pill: 999px;
+
+  /* === Shadows (layered, Apple/Linear-stil) === */
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.03);
+  --shadow-md: 0 2px 6px rgba(15, 23, 42, 0.05), 0 4px 12px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 8px 24px rgba(15, 23, 42, 0.08), 0 4px 8px rgba(15, 23, 42, 0.04);
+  --shadow-xl: 0 24px 48px rgba(15, 23, 42, 0.12), 0 8px 16px rgba(15, 23, 42, 0.06);
+
+  /* === Focus ring === */
+  --focus-ring: 0 0 0 3px rgba(99, 102, 241, 0.12);
+
+  /* === Typography === */
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "SF Mono", Menlo, ui-monospace, monospace;
+
+  /* === Transitions === */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Handlingspanel: menyflik bredde (brukt i layout + JS for dock-posisjon) */
+  --app-actions-toggle-size: 32px;
+
+  /* Høyde under header til festet panel / flik (synk med faktisk header + padding) */
+  --app-header-offset: 132px;
+}

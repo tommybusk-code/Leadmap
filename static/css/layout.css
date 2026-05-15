@@ -1,0 +1,278 @@
+/* ============================================================
+   layout.css — Topp-nivå struktur: header, hovedfaner, view-containers.
+   ============================================================ */
+
+/* === Header — kompakt, én rad (handlinger i sidepanel) === */
+header {
+  --header-pad-y: 10px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--text);
+  padding: var(--header-pad-y) var(--space-4);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 1px 0 rgba(245, 158, 11, 0.04), 0 1px 3px rgba(0, 0, 0, 0.03);
+  position: relative;
+  z-index: 45;
+}
+header::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(99, 102, 241, 0.14) 35%,
+    rgba(14, 165, 233, 0.08) 65%,
+    transparent 100%);
+  pointer-events: none;
+}
+header h1.brand-heading {
+  margin: 0; font-size: 14px; font-weight: 700;
+  display: flex; align-items: center; gap: 8px;
+  letter-spacing: -0.03em;
+  color: #0f172a;
+}
+header h1 .brand-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  line-height: 0;
+  /* Fyll header-båndet: samme totalhøyde som --app-header-offset (tokens) minus vertikal padding */
+  height: calc(var(--app-header-offset, 110px) - (2 * var(--header-pad-y, 10px)));
+  max-width: min(600px, 72vw);
+  overflow: hidden;
+}
+header h1 .brand-logo {
+  display: block;
+  width: auto;
+  max-width: none;
+  height: 100%;
+  object-fit: contain;
+  object-position: left center;
+  /* Vertikal «crop» av topp/bunn (typisk luft i JPG) — trenger ikke ny fil; juster % ved behov */
+  clip-path: inset(8% 0 8% 0);
+  transform: none;
+}
+header h1 .brand-logo--dark {
+  display: none;
+}
+.hdr-trailing {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+.hdr-row--compact {
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+.hdr-trailing--compact .stats {
+  gap: 18px;
+}
+.hdr-trailing--compact .stats span {
+  font-size: 9px;
+  padding-left: 12px;
+}
+.hdr-trailing--compact .stats span b {
+  font-size: 12px;
+}
+.hdr-row {
+  display: flex; justify-content: flex-start; align-items: center;
+  gap: var(--space-4); flex-wrap: wrap;
+}
+
+/* === Handlingspanel (venstre skuff) + egen festet menyflik (#app-actions-toggle utenfor aside) === */
+.app-actions-panel {
+  position: fixed;
+  left: 0;
+  right: auto;
+  top: var(--app-header-offset);
+  height: calc(100vh - var(--app-header-offset));
+  bottom: auto;
+  z-index: 90;
+  display: block;
+  padding-top: 0;
+  pointer-events: none;
+}
+.app-actions-panel .app-actions-drawer {
+  pointer-events: auto;
+}
+#app-actions-toggle.app-actions-toggle {
+  position: fixed;
+  top: calc(var(--app-header-offset) + 4px);
+  left: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--app-actions-toggle-size);
+  height: var(--app-actions-toggle-size);
+  min-width: var(--app-actions-toggle-size);
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  border: 1px solid var(--border);
+  border-left: none;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  box-shadow: 4px 2px 14px rgba(15, 23, 42, 0.12);
+  transition:
+    left 0.22s ease,
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+  overflow: visible;
+}
+body:has(#app-actions-panel:not(.is-collapsed)) #app-actions-toggle.app-actions-toggle {
+  left: min(232px, calc(100vw - var(--app-actions-toggle-size)));
+}
+.app-actions-toggle-svg {
+  display: block;
+  flex-shrink: 0;
+}
+.app-actions-toggle .app-actions-ico-burger {
+  display: block;
+}
+.app-actions-toggle .app-actions-ico-close {
+  display: none;
+}
+.app-actions-toggle[aria-expanded="true"] .app-actions-ico-burger {
+  display: none;
+}
+.app-actions-toggle[aria-expanded="true"] .app-actions-ico-close {
+  display: block;
+}
+.app-actions-toggle:hover {
+  background: var(--surface-2);
+  color: var(--primary);
+  transform: none;
+  box-shadow: 4px 3px 16px rgba(15, 23, 42, 0.14);
+}
+.app-actions-toggle:active:not(:disabled) {
+  transform: none;
+}
+.app-actions-drawer {
+  width: 232px;
+  max-width: min(232px, calc(100vw - var(--app-actions-toggle-size)));
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-right: 1px solid var(--border);
+  box-shadow: 8px 0 24px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+  transition: width 0.22s ease, opacity 0.18s ease, border-color 0.2s ease;
+}
+.app-actions-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: var(--space-3) var(--space-3) var(--space-4);
+  min-height: 100%;
+  box-sizing: border-box;
+}
+.app-actions-inner #run-status {
+  margin-top: auto;
+  margin-left: 0;
+  align-self: stretch;
+  text-align: center;
+}
+.app-actions-panel.is-collapsed .app-actions-drawer {
+  width: 0;
+  opacity: 0;
+  border-right-color: transparent;
+  pointer-events: none;
+}
+body:has(#app-actions-panel.is-collapsed) #app-actions-toggle.app-actions-toggle {
+  border-left: 1px solid var(--border);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  box-shadow: 4px 2px 18px rgba(15, 23, 42, 0.12);
+}
+.theme-toggle--panel {
+  width: 100%;
+  justify-content: center;
+  padding: 8px 10px;
+  font-size: 16px;
+  line-height: 1;
+}
+.theme-toggle {
+  flex-shrink: 0;
+}
+
+/* Første gangs oppsett — ingen kunder i data */
+.setup-banner {
+  margin: 0 var(--space-6) var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--primary-100);
+  background: var(--primary-50);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.setup-banner p {
+  margin: 0 0 var(--space-2);
+  max-width: 52rem;
+}
+.setup-banner-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+.setup-banner-actions .muted {
+  font-size: 12px;
+}
+
+/* Stats med fargede dots */
+.stats { display: flex; gap: 28px; font-size: 11px; color: var(--muted); font-weight: 500; }
+.stats span {
+  display: inline-flex; align-items: baseline; gap: var(--space-2);
+  text-transform: uppercase; letter-spacing: 0.04em; font-size: 10px;
+  position: relative; padding-left: 14px;
+}
+.stats span::before {
+  content: ""; position: absolute; left: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 6px; height: 6px; border-radius: 50%;
+}
+.stats span:nth-child(1)::before { background: #6366f1; box-shadow: 0 0 8px rgba(99, 102, 241, 0.5); }
+.stats span:nth-child(2)::before { background: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.5); }
+.stats span:nth-child(3)::before { background: #f59e0b; box-shadow: 0 0 8px rgba(245, 158, 11, 0.5); }
+.stats span b {
+  color: var(--text); font-size: 14px; font-weight: 600;
+  letter-spacing: -0.01em; text-transform: none;
+}
+
+.main-tabs {
+  background: var(--surface);
+  padding: 0 var(--space-6); display: flex; gap: 2px;
+  border-bottom: 1px solid var(--border);
+  align-items: flex-end;
+}
+.main-tab {
+  background: transparent; color: var(--muted); border: none;
+  padding: 12px var(--space-4); font-size: 13px; font-weight: 500;
+  border-radius: 0; cursor: pointer; box-shadow: none;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  letter-spacing: -0.005em;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.main-tab:hover {
+  color: var(--text); background: transparent;
+  transform: none; box-shadow: none;
+}
+.main-tab.active {
+  color: var(--primary); background: transparent;
+  border-bottom-color: var(--primary);
+  font-weight: 600;
+}
+
+/* === Innholdsområde med spacing rundt cards === */
+#view-leads, #view-customers {
+  padding: var(--space-5) var(--space-6) 28px;
+}

@@ -1,0 +1,30 @@
+{
+  "weights": {
+    "felles_styreleder": 26,
+    "felles_styremedlem": 18,
+    "samme_bransje": 14,
+    "nabobedrift_kommune": 8,
+    "selskap_i_vekst": 8,
+    "nabobedrift_postnummer": 11,
+    "kunde_morselskap": 22,
+    "kunde_konserntre": 18,
+    "kunde_aksjeeierbok": 20,
+    "combo_bransje_postnr": 18,
+    "combo_bransje_kommune": 12,
+    "multi_anchor_2": 10,
+    "multi_anchor_3": 18
+  },
+  "thresholds": {
+    "small_anchor_threshold": 0,
+    "small_anchor_factor": 0,
+    "min_lead_ansatte": 0,
+    "min_anchor_ansatte": 0,
+    "nabobedrift_postnr_distance_max_m": 8000,
+    "geo_postnr_addr_mult": 1.38,
+    "geo_kommune_vs_postnr_cap": 0.88,
+    "kunde_aksjeeierbok_min_pct": 2.0,
+    "kunde_aksjeeierbok_max_pct": 100.0,
+    "score_boost_combo_points": 25,
+    "score_boost_multi_points": 25
+  }
+}

@@ -1,0 +1,273 @@
+/* ============================================================
+   theme.css — Mørk modus (data-theme="dark" på <html>).
+   Lys modus er :root i tokens.css. Logo byttes via .brand-logo--* .
+   ============================================================ */
+
+[data-theme="dark"] {
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --primary-light: #60a5fa;
+  --primary-50: rgba(59, 130, 246, 0.14);
+  --primary-100: rgba(59, 130, 246, 0.22);
+
+  --bg: #0b1120;
+  --surface: #111c2e;
+  --surface-2: #172033;
+
+  --border: #243047;
+  --border-strong: #334155;
+
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+  --muted-soft: #64748b;
+
+  --success: #34d399;
+  --success-bg: rgba(16, 185, 129, 0.14);
+  --warning: #fbbf24;
+  --warning-bg: rgba(245, 158, 11, 0.12);
+  --danger: #f87171;
+  --danger-bg: rgba(248, 113, 113, 0.12);
+
+  --status-kontaktet: #22d3ee;
+  --status-kontaktet-bg: rgba(6, 182, 212, 0.14);
+
+  --sig-styreleder: #fca5a5;
+  --sig-styreleder-bg: rgba(254, 202, 202, 0.1);
+  --sig-styremedlem: #fdba74;
+  --sig-styremedlem-bg: rgba(254, 215, 170, 0.1);
+  --sig-vekst: #fcd34d;
+  --sig-vekst-bg: rgba(253, 224, 71, 0.08);
+  --sig-bransje: #93c5fd;
+  --sig-bransje-bg: rgba(147, 197, 253, 0.1);
+  --sig-kommune: #fb7185;
+  --sig-kommune-bg: rgba(251, 113, 133, 0.14);
+  --sig-postnr: #fda4af;
+  --sig-postnr-bg: rgba(253, 164, 175, 0.12);
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.25);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.55);
+
+  --focus-ring: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+[data-theme="dark"] header h1 .brand-logo--light {
+  display: none;
+}
+[data-theme="dark"] header h1 .brand-logo--dark {
+  display: block;
+}
+
+[data-theme="dark"] header {
+  background: rgba(11, 17, 32, 0.92);
+  border-bottom-color: var(--border);
+  box-shadow: 0 1px 0 rgba(59, 130, 246, 0.06), 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+[data-theme="dark"] header h1.brand-heading {
+  color: var(--text);
+}
+
+[data-theme="dark"] .app-actions-drawer {
+  background: rgba(17, 28, 46, 0.97);
+  border-right-color: var(--border);
+  box-shadow: 10px 0 32px rgba(0, 0, 0, 0.45);
+}
+[data-theme="dark"] .app-actions-toggle {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+  box-shadow: 4px 0 14px rgba(0, 0, 0, 0.4);
+}
+[data-theme="dark"] .app-actions-toggle:hover {
+  background: var(--surface-2);
+  color: var(--primary-light);
+  transform: none;
+}
+
+[data-theme="dark"] thead th {
+  background: rgba(17, 28, 46, 0.96);
+  border-bottom-color: var(--border);
+}
+[data-theme="dark"] tbody tr:hover {
+  background: rgba(59, 130, 246, 0.07);
+}
+
+[data-theme="dark"] .score-high {
+  background: rgba(16, 185, 129, 0.18);
+  color: #6ee7b7;
+}
+[data-theme="dark"] .score-mid {
+  background: rgba(245, 158, 11, 0.14);
+  color: #fcd34d;
+}
+[data-theme="dark"] .score-low {
+  background: var(--surface-2);
+  color: var(--muted);
+}
+
+[data-theme="dark"] .sig-tag.t-selskap_i_vekst { color: var(--sig-vekst); }
+[data-theme="dark"] .sig-tag.t-samme_bransje { color: var(--sig-bransje); }
+[data-theme="dark"] .sig-tag.t-combo-bonus {
+  background: rgba(167, 139, 250, 0.15);
+  color: #c4b5fd;
+}
+[data-theme="dark"] .sig-tag.t-multi-bonus {
+  background: rgba(244, 114, 182, 0.12);
+  color: #f9a8d4;
+}
+[data-theme="dark"] .sig-tag.t-kunde_morselskap {
+  background: rgba(139, 92, 246, 0.18);
+  color: #ddd6fe;
+  border-color: rgba(167, 139, 250, 0.45);
+}
+[data-theme="dark"] .sig-tag.t-kunde_konserntre {
+  background: rgba(99, 102, 241, 0.16);
+  color: #c7d2fe;
+  border-color: rgba(129, 140, 248, 0.4);
+}
+[data-theme="dark"] .sig-tag.t-kunde_aksjeeierbok {
+  background: rgba(167, 139, 250, 0.14);
+  color: #e9d5ff;
+  border-color: rgba(192, 132, 252, 0.4);
+}
+
+[data-theme="dark"] .editable-abo:focus {
+  background: rgba(251, 191, 36, 0.12);
+}
+
+[data-theme="dark"] .modal button:not(.secondary):not(.danger):not(.small),
+[data-theme="dark"] button.primary {
+  box-shadow: 0 1px 2px rgba(37, 99, 235, 0.35);
+}
+[data-theme="dark"] .modal button:not(.secondary):not(.danger):not(.small):hover,
+[data-theme="dark"] button.primary:hover {
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+}
+
+[data-theme="dark"] .strong-section {
+  background: rgba(17, 28, 46, 0.65);
+  border-color: var(--border-strong);
+}
+[data-theme="dark"] .strong-section-head {
+  border-bottom-color: var(--border-strong);
+}
+[data-theme="dark"] .strong-count {
+  background: var(--surface-2);
+  border-color: var(--border);
+}
+[data-theme="dark"] .strong-anchor {
+  background: var(--surface);
+  border-color: var(--border-strong);
+  border-left-color: var(--primary-light);
+}
+
+[data-theme="dark"] .person-card.power {
+  background: rgba(127, 29, 29, 0.2);
+  border-color: rgba(248, 113, 113, 0.35);
+}
+
+[data-theme="dark"] .banner-subsidiary {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+[data-theme="dark"] .banner-konsern {
+  background: rgba(139, 92, 246, 0.12);
+  border-color: rgba(167, 139, 250, 0.35);
+  color: var(--text);
+}
+
+[data-theme="dark"] .banner-parent {
+  border-color: rgba(52, 211, 153, 0.35);
+}
+
+[data-theme="dark"] .detail-chip--ok {
+  color: #6ee7b7;
+  background: rgba(16, 185, 129, 0.14);
+}
+[data-theme="dark"] .detail-chip--warn {
+  color: #fcd34d;
+  background: rgba(245, 158, 11, 0.12);
+}
+[data-theme="dark"] .detail-chip--status.status-vunnet,
+[data-theme="dark"] .detail-chip--status.status-datterselskap,
+[data-theme="dark"] .detail-chip--status.status-eksisterende_kunde {
+  color: #6ee7b7;
+  background: rgba(16, 185, 129, 0.14);
+  border-color: rgba(52, 211, 153, 0.35);
+}
+[data-theme="dark"] .detail-chip--status.status-kontaktet {
+  color: #67e8f9;
+  background: var(--status-kontaktet-bg);
+  border-color: rgba(34, 211, 238, 0.35);
+}
+[data-theme="dark"] .detail-chip--status.status-follow_up {
+  color: var(--primary-light);
+  background: rgba(59, 130, 246, 0.12);
+  border-color: var(--border-strong);
+}
+
+[data-theme="dark"] .sig-tag.t-nabobedrift_kommune,
+[data-theme="dark"] .sig-combo-g.g-kommune {
+  background: rgba(251, 113, 133, 0.22);
+  color: #fecdd3;
+  border-color: rgba(251, 113, 133, 0.42);
+}
+[data-theme="dark"] .sig-tag.t-nabobedrift_postnummer,
+[data-theme="dark"] .sig-combo-g.g-postnr {
+  background: rgba(251, 113, 133, 0.14);
+  color: #ffe4e6;
+  border-color: rgba(251, 113, 133, 0.32);
+}
+[data-theme="dark"] .sig-combo-g.g-fylke,
+[data-theme="dark"] .sig-tag.geo-tag.g-fylke,
+[data-theme="dark"] .detail-chip-geo.g-fylke,
+[data-theme="dark"] .detail-chip-inline.g-fylke {
+  background: #27272a;
+  color: #a1a1aa;
+  border-color: #3f3f46;
+}
+[data-theme="dark"] .sig-tag.geo-tag.g-kommune,
+[data-theme="dark"] .detail-chip-geo.g-kommune,
+[data-theme="dark"] .detail-chip-inline.g-kommune {
+  background: rgba(251, 113, 133, 0.22);
+  color: #fecdd3;
+  border-color: rgba(251, 113, 133, 0.42);
+}
+[data-theme="dark"] .sig-tag.geo-tag.g-postnr,
+[data-theme="dark"] .detail-chip-geo.g-postnr,
+[data-theme="dark"] .detail-chip-inline.g-postnr {
+  background: rgba(251, 113, 133, 0.14);
+  color: #ffe4e6;
+  border-color: rgba(251, 113, 133, 0.32);
+}
+[data-theme="dark"] .sig-combo-g.g-adresse {
+  background: rgba(254, 242, 242, 0.1);
+  color: #fecdd3;
+  border-left-color: rgba(254, 205, 211, 0.35);
+}
+[data-theme="dark"] .sig-tag.geo-tag.g-adresse,
+[data-theme="dark"] .detail-chip-geo.g-adresse,
+[data-theme="dark"] .detail-chip-inline.g-adresse {
+  background: rgba(254, 242, 242, 0.08);
+  color: #fecdd3;
+  border-color: rgba(254, 205, 211, 0.28);
+}
+
+[data-theme="dark"] .theme-toggle {
+  background: var(--surface-2);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .setup-banner {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: var(--border-strong);
+}
+
+[data-theme="dark"] .table-pager {
+  background: var(--surface);
+  border-color: var(--border);
+}

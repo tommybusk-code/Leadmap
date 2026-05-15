@@ -1,0 +1,183 @@
+/* ============================================================
+   filters.css — Status-tabs, filter-bar, multi-select dropdown.
+   ============================================================ */
+
+/* === Status tabs — floating card med farge-dots === */
+.status-tabs {
+  background: var(--surface);
+  padding: var(--space-3) var(--space-4);
+  display: flex; gap: 6px; flex-wrap: wrap;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+  margin-bottom: var(--space-3);
+}
+.status-tabs button {
+  background: var(--surface-2); color: var(--muted);
+  border: 1px solid transparent;
+  padding: 5px 12px 5px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 11px; font-weight: 500;
+  letter-spacing: -0.005em; box-shadow: none;
+  display: inline-flex; align-items: center; gap: 7px;
+}
+.status-tabs button::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--muted-soft); flex-shrink: 0;
+}
+.status-tabs button[data-status="new"]::before { background: #6366f1; }
+.status-tabs button[data-status="follow_up"]::before { background: #f59e0b; }
+.status-tabs button[data-status="kontaktet"]::before { background: var(--status-kontaktet); }
+.status-tabs button[data-status="vunnet"]::before { background: #10b981; }
+.status-tabs button[data-status="ikke_aktuell"]::before { background: #94a3b8; }
+.status-tabs button:hover:not(.active) {
+  background: var(--surface); border-color: var(--border);
+  color: var(--text); transform: none; box-shadow: var(--shadow-xs);
+}
+.status-tabs button.active {
+  background: var(--primary-50); color: var(--primary);
+  border-color: var(--primary-100); font-weight: 600;
+  box-shadow: 0 1px 2px rgba(79, 70, 229, 0.08);
+}
+
+/* === Filter-bar — floating card === */
+.filters {
+  background: var(--surface);
+  padding: 14px var(--space-4); display: flex; gap: 10px;
+  align-items: center; flex-wrap: wrap;
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+  margin-bottom: var(--space-3);
+}
+.filters input, .filters select {
+  padding: 7px 12px; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); font-size: 12px;
+  background: var(--surface); color: var(--text);
+  font-family: inherit; box-shadow: var(--shadow-xs);
+  transition: all 0.15s ease;
+}
+.filters input::placeholder { color: var(--muted-soft); }
+.filters input:hover, .filters select:hover { border-color: var(--border-strong); }
+.filters input:focus, .filters select:focus {
+  outline: none; border-color: var(--primary-light);
+  box-shadow: var(--focus-ring);
+}
+.filters label {
+  color: var(--muted); font-size: 11px; font-weight: 500;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.filters .counter {
+  margin-left: auto; color: var(--muted);
+  font-size: 11px; font-weight: 500;
+  background: var(--surface-2);
+  padding: 5px 12px; border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+}
+
+/* === Multi-select dropdown === */
+.ms-wrap { position: relative; display: inline-block; }
+.ms-btn {
+  background: var(--surface); color: var(--text);
+  border: 1px solid var(--border);
+  padding: 7px 14px 7px 12px;
+  border-radius: var(--radius-sm); font-size: 12px;
+  font-weight: 500; cursor: pointer; min-width: 110px;
+  text-align: left; box-shadow: var(--shadow-xs);
+  transition: all 0.15s ease;
+}
+.ms-btn:hover { border-color: var(--border-strong); background: var(--surface-2); }
+.ms-btn.has-selection {
+  border-color: var(--primary-100); background: var(--primary-50);
+  color: var(--primary); font-weight: 600;
+}
+.ms-btn::after { content: " ▾"; font-size: 9px; color: var(--muted); margin-left: 4px; }
+
+.ms-dropdown {
+  position: absolute; top: 100%; left: 0; margin-top: 6px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow-lg);
+  z-index: 50;
+  min-width: 240px; max-width: 340px; padding: var(--space-2);
+  animation: modalIn 0.15s ease;
+}
+.ms-search {
+  width: 100%; padding: 7px 10px; margin-bottom: 6px;
+  border: 1px solid var(--border); border-radius: var(--radius-xs);
+  font-size: 12px; font-family: inherit;
+}
+.ms-search:focus {
+  outline: none; border-color: var(--primary-light);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.12);
+}
+.ms-options-list {
+  max-height: 280px; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 1px;
+}
+.ms-option {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 8px; font-size: 12.5px; cursor: pointer;
+  border-radius: var(--radius-xs); width: 100%;
+  transition: background 0.1s;
+}
+.ms-option:hover { background: var(--surface-2); }
+.ms-option input { margin: 0; }
+.ms-option small {
+  color: var(--muted); margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+.ms-actions {
+  display: flex; justify-content: flex-end; gap: 6px;
+  margin-top: 6px; padding-top: var(--space-2);
+  border-top: 1px solid var(--border);
+}
+
+/* === Tabell-paginering (leads + kunder) === */
+.table-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+  margin-bottom: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+  font-size: 12px;
+  color: var(--text);
+}
+.table-pager .pager-size {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 500;
+  color: var(--muted);
+}
+.table-pager .pager-select {
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 12px;
+  font-family: inherit;
+  min-width: 72px;
+}
+.table-pager .pager-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.table-pager .pager-info {
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  min-width: 12rem;
+}
+@media (max-width: 640px) {
+  .table-pager { flex-direction: column; align-items: stretch; }
+  .table-pager .pager-nav { justify-content: center; }
+  .table-pager .pager-info { text-align: center; min-width: 0; }
+}
