@@ -42,11 +42,9 @@
     }
     .login-brand img {
       width: 100%;
-      max-width: 360px;
+      max-width: 420px;
       height: auto;
       display: block;
-      border-radius: 12px;
-      box-shadow: 0 12px 32px -12px rgba(15, 23, 42, 0.25), 0 2px 6px rgba(15, 23, 42, 0.08);
     }
     .login-brand .brand-tagline {
       font-size: 0.95rem;
@@ -194,21 +192,13 @@
       font-size: 0.78rem;
       padding: 16px;
     }
-    .brand-logo--dark { display: none; }
-    [data-theme="dark"] .brand-logo--light { display: none; }
-    [data-theme="dark"] .brand-logo--dark { display: inline-block; }
-    @media (prefers-color-scheme: dark) {
-      :root:not([data-theme="light"]) .brand-logo--light { display: none; }
-      :root:not([data-theme="light"]) .brand-logo--dark { display: inline-block; }
-    }
   </style>
 </head>
 <body>
   <main class="login-page">
     <div class="login-wrap">
       <div class="login-brand">
-        <img class="brand-logo brand-logo--light" src="/static/brand/leadmap-light.jpg" alt="LeadMap">
-        <img class="brand-logo brand-logo--dark" src="/static/brand/leadmap-dark.jpg" alt="" aria-hidden="true">
+        <img src="/static/brand/leadmap-light.jpg" alt="LeadMap">
         <p class="brand-tagline">Smart B2B lead-prospektering for Unifon</p>
       </div>
 
