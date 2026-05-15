@@ -3,9 +3,11 @@ from __future__ import annotations
 """Lead scoring — additiv modell, vist score 0–100. Vekter lastes fra data/settings.json.
 
 Råpoeng = sum av signalvekter (høyeste per type) + ev. kryss- og flere-ankere-tillegg.
-**Vist score** = ``min(100, avrunding(råpoeng))`` + eventuelle synergy-tillegg (også begrenset til 100 til sammen).
-Råvektene er dermed på samme «poengskala» som totalsummen: ett svakt signal alene (f.eks. kommune = 6) gir 6/100,
-ikke 100 fordi leaden ikke har andre signaltyper.
+**Vist score** = myk metning av råpoeng (lineær opp til ``score_softcap_knee``, deretter asymptotisk
+mot 100) + eventuelle synergy-tillegg (også begrenset til 100 til sammen). Under knee-punktet er
+råvektene på samme «poengskala» som totalsummen: ett svakt signal alene (f.eks. kommune = 6) gir
+6/100, ikke 100 fordi leaden ikke har andre signaltyper. Over knee-punktet får ekstra råpoeng
+avtagende uttelling, så 100 reserveres for de virkelig sterkeste leadene.
 
 **Teoretisk maks-råpoeng** (``theoretical_max_raw_points``) brukes i innstillinger-UI som øvre referanse for sliderne.
 
@@ -55,6 +57,8 @@ DEFAULT_THRESHOLDS = {
     # Ekstra heltallspoeng (0–100-skala) lagt til etter skalering når bonus faktisk utløses.
     "score_boost_combo_points": 4,
     "score_boost_multi_points": 3,
+    # Knee-punkt for myk metning av råpoeng: lineær under, asymptotisk mot 100 over.
+    "score_softcap_knee": 70,
 }
 
 
@@ -110,6 +114,12 @@ def save_settings(weights: dict = None, thresholds: dict = None):
     for bk in ("score_boost_combo_points", "score_boost_multi_points"):
         if bk in t:
             t[bk] = max(0, min(25, int(float(t[bk]) or 0)))
+    if "score_softcap_knee" in t:
+        try:
+            knee = int(float(t["score_softcap_knee"]))
+        except (TypeError, ValueError):
+            knee = int(DEFAULT_THRESHOLDS["score_softcap_knee"])
+        t["score_softcap_knee"] = max(30, min(100, knee))
     if "geo_postnr_addr_mult" in t:
         try:
             gm = float(t["geo_postnr_addr_mult"])
@@ -158,6 +168,27 @@ def _geo_postnr_addr_mult(thresholds: dict | None = None) -> float:
     except (TypeError, ValueError):
         return float(GEO_POSTNR_ADDR_MULT)
     return max(1.0, min(2.5, x))
+
+
+def _score_softcap_knee(thresholds: dict | None = None) -> int:
+    t = _effective_thresholds(thresholds)
+    v = t.get("score_softcap_knee")
+    if v is None:
+        return int(DEFAULT_THRESHOLDS["score_softcap_knee"])
+    try:
+        x = int(float(v))
+    except (TypeError, ValueError):
+        return int(DEFAULT_THRESHOLDS["score_softcap_knee"])
+    return max(30, min(100, x))
+
+
+def _soft_cap_raw(raw: float, knee: int) -> float:
+    """Lineær opp til knee, asymptotisk mot 100 over. raw=knee+x → knee + (100-knee)·x/(x+(100-knee))."""
+    if raw <= knee or knee >= 100:
+        return max(0.0, raw)
+    remaining = 100 - knee
+    over = raw - knee
+    return knee + remaining * over / (over + remaining)
 
 
 def _geo_kommune_vs_postnr_cap(thresholds: dict | None = None) -> float:
@@ -308,7 +339,7 @@ def score_lead(lead: dict, weights: dict | None = None, thresholds: dict | None 
         multi_bonus = 0
 
     raw = float(base + combo_bonus + multi_bonus)
-    base_score = min(100, int(round(raw)))
+    base_score = min(100, int(round(_soft_cap_raw(raw, _score_softcap_knee(thr)))))
 
     # score_breakdown = råpoeng per del (samme som i «vekter»-modellen).
     breakdown = {k: int(v) for k, v in seen.items()}

@@ -35,6 +35,7 @@ const THRESHOLD_FIELDS = [
   },
   { key: "score_boost_combo_points", label: "Ekstra score-poeng ved kryss (bransje+geo)", kind: "int", max: 25 },
   { key: "score_boost_multi_points", label: "Ekstra score-poeng ved flere ankere (2+ treff)", kind: "int", max: 25 },
+  { key: "score_softcap_knee", label: "Score-knee: lineær under, asymptotisk mot 100 over (30–100)", kind: "int", min: 30, max: 100, fallback: 70 },
 ];
 
 const OWNERSHIP_PCT_STEP = 0.1;
@@ -396,10 +397,13 @@ function renderSettings(s) {
       const step = f.step != null ? f.step : 0.01;
       return `<label>${f.label}</label><input type="number" data-key="${f.key}" data-kind="threshold" data-numeric="float" value="${v}" min="${f.min}" max="${f.max}" step="${step}">`;
     }
-    const v = raw != null && raw !== "" ? parseInt(raw, 10) : 0;
-    const vv = Number.isFinite(v) ? v : 0;
+    const fbInt = f.fallback != null ? parseInt(f.fallback, 10) : 0;
+    const parsed = raw != null && raw !== "" ? parseInt(raw, 10) : fbInt;
+    const minV = f.min != null ? f.min : 0;
     const max = f.key === "small_anchor_factor" ? 100 : f.max;
-    return `<label>${f.label}</label><input type="number" data-key="${f.key}" data-kind="threshold" data-numeric="int" value="${vv}" min="0" max="${max}">`;
+    let vv = Number.isFinite(parsed) ? parsed : fbInt;
+    vv = Math.max(minV, Math.min(max, vv));
+    return `<label>${f.label}</label><input type="number" data-key="${f.key}" data-kind="threshold" data-numeric="int" value="${vv}" min="${minV}" max="${max}">`;
   }).join("");
   let lo =
     thr.kunde_aksjeeierbok_min_pct != null && thr.kunde_aksjeeierbok_min_pct !== ""
