@@ -73,3 +73,9 @@ Se `REFACTOR_AUDIT.md` — `analysis.py`, `core.js`, `customers-tab.js`, osv. Re
 - **`leads-table.js`:** debounce ~140 ms på `f-search` / `f-minscore` **input**; umiddelbar `render()` på **change** (avbryter ventende timeout).
 - **`customers-tab.js`:** tilsvarende debounce på `cust-search-tab` **input** (tung `renderCustomersTab`).
 
+## Runde 4 (utført): `save_json` cache-invalidering i stedet for deepcopy
+
+- **`json_store.save_json`:** Tidligere oppdaterte cachen med `copy.deepcopy(data)` etter hver atomisk skriv — dyrt for store filer (`leads.json`) og helt bortkastet ved write-only sekvenser (periodiske save under analyse/geo, eller når ingen leser før neste skriving). Nå **invalideres** cache-entryen i stedet (`pop(key)`). Neste `load_json` leser fra disk via `json.loads` (C-implementert, typisk raskere enn `deepcopy` på samme data), repopulerer cache og returnerer deepcopy som før.
+- **Korrekthet bevart:** Disken er fortsatt kilden. Mtime-sjekken i `load_json` håndterer fortsatt samtidig skriving mellom tråder (gammel cache → mtime-mismatch → fersk les).
+- **Ikke endret (P1.4):** Eksplisitt jobb-serialisering mellom `_analysis`- og `_import_state`-arbeidere er fortsatt **ikke** lagt til — `os.replace` gir filnivå-atomisitet og dokumentene anbefaler å vente med eksplisitt lås til målt tap viser et behov.
+

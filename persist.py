@@ -1,6 +1,6 @@
 """Kunde- og lead-filer: Excel-import, backup, get/save."""
-import pandas as pd
-
+# pandas importeres på første Excel-bruk (lat) — modul-import koster ~800 ms ved oppstart
+# men brukes kun i `_save_customers_backup` / `_load_from_backup_xlsx`, ikke hot path.
 from paths import (
     CUSTOMERS_BACKUP,
     CUSTOMERS_FILE,
@@ -27,6 +27,7 @@ def get_notes():
 def _save_customers_backup(customers):
     if not customers:
         return
+    import pandas as pd
     rows = []
     for navn_key, c in customers.items():
         rows.append({
@@ -63,6 +64,7 @@ def save_customers(customers):
 
 
 def _load_from_backup_xlsx(xlsx_path):
+    import pandas as pd
     df = pd.read_excel(xlsx_path)
     out = {}
 

@@ -7,7 +7,7 @@ import urllib.parse
 from datetime import datetime
 from io import BytesIO
 
-import pandas as pd
+# pandas importeres lat inne i api_export_filtered_leads — sparer ~800 ms ved oppstart.
 from flask import jsonify, request, send_file
 
 import enrichment as E
@@ -212,6 +212,7 @@ _EXPORT_COL_PRIORITY = (
 @bp.route("/leads/export-filtered", methods=["POST"])
 def api_export_filtered_leads():
     """Én rad per lead som i gjeldende filter (klient sender JSON fra samme filterlogikk som tabellen)."""
+    import pandas as pd
     body = request.get_json(force=True, silent=True) or {}
     leads = body.get("leads")
     if not isinstance(leads, list) or not leads:
