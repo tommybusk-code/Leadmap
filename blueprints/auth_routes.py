@@ -67,11 +67,24 @@ def decode_oauth_state(secret: str, raw: str | None, max_age: int = 900) -> dict
 
 
 def init_oauth(app) -> None:
+    cid_raw = os.environ.get("GOOGLE_OAUTH_CLIENT_ID")
+    csec_raw = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET")
+    cid = (cid_raw or "").strip()
+    csec = (csec_raw or "").strip()
+    # Startup-diagnose: synlig i Render-logs uten å lekke verdier
+    print(
+        f"[oauth-init] authlib_available={bool(_OAuthClient)} "
+        f"client_id_present={cid_raw is not None} client_id_len={len(cid)} "
+        f"client_secret_present={csec_raw is not None} client_secret_len={len(csec)} "
+        f"render_service={os.environ.get('RENDER_SERVICE_NAME') or '-'} "
+        f"render_external_url={os.environ.get('RENDER_EXTERNAL_URL') or '-'}",
+        flush=True,
+    )
     if not _OAuthClient:
+        print("[oauth-init] authlib not installed — skipping", flush=True)
         return
-    cid = (os.environ.get("GOOGLE_OAUTH_CLIENT_ID") or "").strip()
-    csec = (os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET") or "").strip()
     if not cid or not csec:
+        print("[oauth-init] missing client_id or client_secret — OAuth disabled", flush=True)
         return
     oauth.init_app(app)
     oauth.register(
@@ -81,6 +94,7 @@ def init_oauth(app) -> None:
         server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
         client_kwargs={"scope": "openid email profile"},
     )
+    print("[oauth-init] Google OAuth registered OK", flush=True)
 
 
 def init_auth(app) -> None:
@@ -142,12 +156,28 @@ def api_auth_me():
             "tenant_id": u["tenant_id"],
             "permissions": UDB.effective_permissions(u),
         }
+    cid_raw = os.environ.get("GOOGLE_OAUTH_CLIENT_ID")
+    csec_raw = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET")
     return jsonify(
         {
             "authenticated": u is not None,
             "user": user_out,
             "oauth_configured": oauth_google_configured(),
             "auth_relaxed": relaxed,
+            "diagnostic": {
+                "authlib_available": bool(_OAuthClient),
+                "client_id_present": cid_raw is not None,
+                "client_id_len": len((cid_raw or "").strip()),
+                "client_secret_present": csec_raw is not None,
+                "client_secret_len": len((csec_raw or "").strip()),
+                "render_service_name": os.environ.get("RENDER_SERVICE_NAME") or None,
+                "render_service_id": os.environ.get("RENDER_SERVICE_ID") or None,
+                "render_external_url": os.environ.get("RENDER_EXTERNAL_URL") or None,
+                "public_base_url": (os.environ.get("LEADMAP_PUBLIC_URL") or "").strip()
+                or (os.environ.get("RENDER_EXTERNAL_URL") or "").strip()
+                or None,
+                "auth_disabled_flag": (os.environ.get("LEADMAP_AUTH_DISABLED") or "").strip() == "1",
+            },
         }
     )
 

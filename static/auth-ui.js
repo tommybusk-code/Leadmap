@@ -203,8 +203,29 @@
     }
   }
 
-  window.addEventListener("leadmap-auth-required", () => {
-    showAuthGate("Økten utløp — logg inn på nytt.", readInviteFromUrl(), true, false);
+  // Når en /api/... call returnerer 401, sjekk om vi virkelig har mistet sessionen
+  // (kan være et race-løp ved oppstart) før vi sender brukeren ut. Hvis sessionen
+  // faktisk er borte, gå rett til /login-siden i stedet for å vise modal.
+  let _authRedirecting = false;
+  window.addEventListener("leadmap-auth-required", async () => {
+    if (_authRedirecting) return;
+    _authRedirecting = true;
+    try {
+      const m = await fetch("/api/auth/me", { credentials: "same-origin" })
+        .then((r) => r.json())
+        .catch(() => null);
+      if (m && (m.authenticated || m.auth_relaxed)) {
+        // Falsk alarm — sessionen er fortsatt OK.
+        hideAuthGate();
+        _authRedirecting = false;
+        return;
+      }
+    } catch (e) {
+      /* ignore */
+    }
+    const invite = readInviteFromUrl();
+    const qs = invite ? `?invite=${encodeURIComponent(invite)}` : "";
+    window.location.href = `/login${qs}`;
   });
 
   document.addEventListener("DOMContentLoaded", async () => {
@@ -213,8 +234,12 @@
     const lo = $("btn-auth-logout");
     if (lo) {
       lo.addEventListener("click", async () => {
-        await fetchJSON("/api/auth/logout", { method: "POST" });
-        window.location.reload();
+        try {
+          await fetchJSON("/api/auth/logout", { method: "POST" });
+        } catch (e) {
+          /* ignore — vi går til /login uansett */
+        }
+        window.location.href = "/login";
       });
     }
     const ba = $("btn-auth-admin");

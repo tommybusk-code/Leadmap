@@ -1,7 +1,8 @@
 """LeadMap — Flask entrypoint (index + blueprint-import)."""
 import os
+from urllib.parse import quote
 
-from flask import render_template
+from flask import redirect, render_template, request
 
 from state import app, import_xlsx_if_empty
 
@@ -11,6 +12,18 @@ import analysis  # noqa: F401 — /api/analyze
 
 @app.route("/")
 def index():
+    # Send uautentiserte brukere rett til /login-siden istedenfor å vise
+    # leadmap-shellet med en modal oppå. Logget-inn brukere får appen som før.
+    try:
+        from blueprints.auth_routes import auth_relaxed_mode, get_current_user
+
+        if not auth_relaxed_mode() and get_current_user() is None:
+            invite = (request.args.get("invite") or "").strip()
+            qs = f"?invite={quote(invite)}" if invite else ""
+            return redirect(f"/login{qs}")
+    except Exception:
+        # Hvis auth-modulen ikke er klar (under boot) faller vi tilbake til index.
+        pass
     return render_template("index.html")
 
 
