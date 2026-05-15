@@ -13,7 +13,7 @@ window.MapView = (() => {
   let allLeads = [];
   let allAnchors = [];
   let initialized = false;
-  let useTableFilter = true;  // bruk filtrert tabell-state som standard
+  let useTableFilter = true;
 
   // ── Fargeskala ────────────────────────────────────────────────
   function scoreColor(score) {
@@ -25,6 +25,16 @@ window.MapView = (() => {
   function statusEmoji(s) {
     return ({ Ny: '🆕', Kontaktet: '📞', 'Follow-up': '🔁',
       'Ikke aktuell': '🚫', Vunnet: '🏆' })[s] || s || '';
+  }
+
+  // ── Fremdriftslinje ───────────────────────────────────────────
+  function setProgress(pct, msg) {
+    const wrap = document.getElementById('map-progress-strip');
+    const bar  = document.getElementById('map-progress-bar');
+    const lbl  = document.getElementById('map-lead-count');
+    if (wrap) wrap.style.opacity = pct >= 100 ? '0' : '1';
+    if (bar)  bar.style.width = Math.min(100, Math.max(0, pct)) + '%';
+    if (lbl && msg) lbl.textContent = msg;
   }
 
   // ── CDN-lasting (lazy) ────────────────────────────────────────
@@ -59,18 +69,11 @@ window.MapView = (() => {
     const root = document.getElementById('view-map');
     if (!root || root.dataset.mapBuilt) return;
     root.dataset.mapBuilt = '1';
-    // Beregn top dynamisk (header + tab-bar)
     const navEl = document.querySelector('.main-tabs');
     const top = navEl ? Math.round(navEl.getBoundingClientRect().bottom) : 177;
     root.style.cssText = [
-      'position:fixed',
-      `top:${top}px`,
-      'left:0',
-      'right:0',
-      'bottom:0',
-      'z-index:20',
-      'display:flex',
-      'flex-direction:column',
+      'position:fixed', `top:${top}px`, 'left:0', 'right:0', 'bottom:0',
+      'z-index:20', 'display:flex', 'flex-direction:column',
       'background:var(--surface,#f8fafc)',
     ].join(';');
 
@@ -79,7 +82,7 @@ window.MapView = (() => {
         display:flex;align-items:center;gap:10px;flex-wrap:wrap;
         padding:8px 14px;background:var(--card-bg,#fff);
         border-bottom:1px solid var(--border,#e2e8f0);font-size:13px;">
-        <span id="map-lead-count" style="font-weight:600">Laster…</span>
+        <span id="map-lead-count" style="font-weight:600">Laster kart…</span>
         <span style="color:#ccc">|</span>
         <label style="display:flex;align-items:center;gap:4px;cursor:pointer;user-select:none">
           <input type="checkbox" id="map-show-anchors" checked>Vis kunder (ankere)
@@ -101,6 +104,17 @@ window.MapView = (() => {
           ↻ Oppdater
         </button>
       </div>
+
+      <!-- Fremdriftslinje -->
+      <div id="map-progress-strip" style="
+        height:3px;background:var(--border,#e2e8f0);
+        opacity:1;transition:opacity 0.4s ease 0.2s;overflow:hidden;flex-shrink:0">
+        <div id="map-progress-bar" style="
+          height:100%;width:0%;background:#5e5ce6;
+          transition:width 0.35s cubic-bezier(.4,0,.2,1)">
+        </div>
+      </div>
+
       <div id="leaflet-map" style="flex:1;min-height:300px"></div>`;
 
     document.getElementById('map-reload-btn').addEventListener('click', reload);
@@ -185,9 +199,10 @@ window.MapView = (() => {
   async function reload() {
     const btn = document.getElementById('map-reload-btn');
     if (btn) { btn.textContent = '⏳'; btn.disabled = true; }
+    setProgress(5, 'Henter kartdata…');
     try {
       if (useTableFilter && typeof window.getLeadsForMap === 'function') {
-        // Bruk allerede-filtrerte leads fra tabellen (har geo_lat/geo_lon)
+        setProgress(25, 'Leser filtrerte leads…');
         const tableLeads = window.getLeadsForMap();
         allLeads = tableLeads
           .filter(l => l.geo_lat != null && l.geo_lon != null)
@@ -204,30 +219,33 @@ window.MapView = (() => {
             geoscore: l.geoscore,
             signals: (l.signals || []).map(s => s.type || s).filter(Boolean),
           }));
-        // Ankere hentes fortsatt fra API (kunder er ikke i leads-state)
+        setProgress(55, 'Henter ankere…');
         if (!allAnchors.length) {
           const res = await fetch('/api/leads/map');
           if (res.ok) allAnchors = (await res.json()).anchors || [];
         }
       } else {
-        // Hent alt fra API (ingen filter)
+        setProgress(20, 'Henter leads fra API…');
         const res = await fetch('/api/leads/map');
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        setProgress(55, 'Behandler data…');
         const data = await res.json();
         allLeads = data.leads || [];
         allAnchors = data.anchors || [];
       }
 
+      setProgress(75, 'Tegner markører…');
       renderMarkers();
+      setProgress(90, 'Justerer kartutsnittet…');
       if (allLeads.length > 0) {
         const pts = allLeads.map(l => [l.lat, l.lon]);
         allAnchors.forEach(a => pts.push([a.lat, a.lon]));
         map.fitBounds(L.latLngBounds(pts), { padding: [40, 40], maxZoom: 13 });
       }
+      setProgress(100, `${allLeads.length} leads på kart`);
     } catch (err) {
       console.error('[MapView]', err);
-      const el = document.getElementById('map-lead-count');
-      if (el) el.textContent = '⚠️ Klarte ikke laste kartdata';
+      setProgress(100, '⚠️ Klarte ikke laste kartdata');
     } finally {
       if (btn) { btn.textContent = '↻ Oppdater'; btn.disabled = false; }
     }
@@ -237,7 +255,9 @@ window.MapView = (() => {
   async function init() {
     if (initialized) return;
     initialized = true;
+    setProgress(5, 'Laster kartbibliotek…');
     await loadLeaflet();
+    setProgress(15, 'Bygger kart…');
     buildUI();
 
     map = L.map('leaflet-map', { center: [64.5, 16.0], zoom: 5, preferCanvas: true });
@@ -273,7 +293,6 @@ window.MapView = (() => {
     if (!initialized) {
       init();
     } else {
-      // Rekalkuér top i tilfelle viewport er resizet
       const navEl = document.querySelector('.main-tabs');
       if (navEl && root) {
         root.style.top = Math.round(navEl.getBoundingClientRect().bottom) + 'px';
