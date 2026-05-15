@@ -5,7 +5,7 @@ import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 
-import pandas as pd
+# pandas importeres lat inne i api_import — sparer ~800 ms ved oppstart.
 from flask import jsonify, request
 
 import enrichment as E
@@ -18,6 +18,7 @@ from state import _import_state
 
 @bp.route("/import", methods=["POST"])
 def api_import():
+    import pandas as pd
     preview = request.args.get("preview", "false").lower() == "true"
     if not preview:
         u = get_current_user()
