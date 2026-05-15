@@ -1,0 +1,24 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+# After first deploy, open the service URL and complete Google OAuth (see DEPLOY_RENDER.md).
+
+services:
+  - type: web
+    name: leadmap
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.6"
+      - key: GOOGLE_OAUTH_CLIENT_ID
+        sync: false
+      - key: GOOGLE_OAUTH_CLIENT_SECRET
+        sync: false
+      - key: FLASK_SECRET_KEY
+        generateValue: true
+      - key: LEADMAP_BOOTSTRAP_OWNER_EMAIL
+        sync: false
+      # Optional: custom domain. If unset, the app uses RENDER_EXTERNAL_URL (set automatically by Render).
+      - key: LEADMAP_PUBLIC_URL
+        sync: false
