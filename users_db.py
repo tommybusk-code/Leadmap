@@ -287,6 +287,7 @@ def consume_invite_and_create_user(
     email: str,
     name: str | None,
 ) -> dict[str, Any] | None:
+    """Oppretter medlem, eller reaktiverer tidligere fjernet bruker (samme Google-konto + tenant)."""
     inv = get_invite_by_token_plain(token)
     if not inv or inv.get("used_at"):
         return None
@@ -298,6 +299,12 @@ def consume_invite_and_create_user(
         return None
     th = _hash_token(token)
     now = datetime.now(timezone.utc).isoformat()
+    tenant_id = inv["tenant_id"]
+    can_add = 1 if inv["can_add_customers"] else 0
+    can_full = 1 if inv["can_full_reanalyze"] else 0
+    em = email.lower()
+    nm = name or ""
+
     with _conn() as db:
         cur = db.execute(
             "UPDATE invites SET used_at = ? WHERE token_hash = ? AND used_at IS NULL",
@@ -305,11 +312,31 @@ def consume_invite_and_create_user(
         )
         if cur.rowcount != 1:
             return None
-    return create_member_user(
-        google_sub,
-        email,
-        name,
-        tenant_id=inv["tenant_id"],
-        can_add_customers=inv["can_add_customers"],
-        can_full_reanalyze=inv["can_full_reanalyze"],
-    )
+
+        row = db.execute(
+            "SELECT id, active, role FROM users WHERE google_sub = ? AND tenant_id = ?",
+            (google_sub, tenant_id),
+        ).fetchone()
+
+        if row:
+            uid = int(row["id"])
+            if not row["active"] and row["role"] != "owner":
+                db.execute(
+                    """UPDATE users SET active = 1, email = ?, name = ?,
+                       can_add_customers = ?, can_full_reanalyze = ?,
+                       last_login = ?
+                       WHERE id = ? AND tenant_id = ?""",
+                    (em, nm, can_add, can_full, now, uid, tenant_id),
+                )
+            # Allerede aktiv medlem/eier: invitasjon er markert brukt; innlogging håndteres i callback.
+        else:
+            cur2 = db.execute(
+                """INSERT INTO users (tenant_id, google_sub, email, name, role,
+                    can_add_customers, can_full_reanalyze, can_delete_customers, can_manage_users,
+                    active, created_at, last_login)
+                   VALUES (?, ?, ?, ?, 'member', ?, ?, 0, 0, 1, ?, ?)""",
+                (tenant_id, google_sub, em, nm, can_add, can_full, now, now),
+            )
+            uid = int(cur2.lastrowid)
+
+    return get_user_by_id(uid)

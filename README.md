@@ -20,6 +20,10 @@ python app.py
 
 Åpne **http://localhost:5050** i nettleseren.
 
+## Deploy (Render + Google-innlogging)
+
+Sjekkliste og OAuth-oppsett (engelsk, steg-for-steg): **[DEPLOY_RENDER.md](DEPLOY_RENDER.md)**. Repoet inkluderer **`render.yaml`** for Blueprint-deploy. På Render kan du ofte utelate `LEADMAP_PUBLIC_URL` — appen bruker da automatisk **`RENDER_EXTERNAL_URL`**.
+
 Første gang du bruker appen uten eksisterende `data/customers.json`: klikk **Importer** og velg et vilkårlig Excel- eller CSV-ark med kundeliste (kolonne for firmanavn og/eller org.nr.). Etter import: trykk **Kjør analyse** for å berike via Brønnøysund og finne leads — typisk 1–2 minutter for ~200 kunder.
 
 Hvis du tidligere har eksportert kunder fra LeadMap, kan appen ved oppstart automatisk gjenopprette fra `kunder_backup.xlsx` i prosjektmappen (samme mappe som `app.py`).

@@ -9,7 +9,7 @@ try:
 except ImportError:
     _OAuthClient = None
 
-from flask import Blueprint, jsonify, redirect, request, session
+from flask import Blueprint, jsonify, redirect, render_template, request, session
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 
 import users_db as UDB
@@ -31,8 +31,22 @@ class _OAuthStub:
 oauth = _OAuthClient() if _OAuthClient else _OAuthStub()
 
 
+def oauth_google_configured() -> bool:
+    """True når Google-klienten er registrert hos Authlib (tilgang til .google kan ellers kaste)."""
+    try:
+        return bool(oauth.google)
+    except Exception:
+        return False
+
+
 def public_base_url() -> str:
-    return (os.environ.get("LEADMAP_PUBLIC_URL") or request.host_url).rstrip("/")
+    # LEADMAP_PUBLIC_URL: custom domain or explicit base. RENDER_EXTERNAL_URL: set by Render for *.onrender.com.
+    base = (
+        (os.environ.get("LEADMAP_PUBLIC_URL") or "").strip()
+        or (os.environ.get("RENDER_EXTERNAL_URL") or "").strip()
+        or (request.host_url or "").strip()
+    )
+    return base.rstrip("/")
 
 
 def _state_serializer(secret: str) -> URLSafeTimedSerializer:
@@ -88,10 +102,7 @@ def auth_relaxed_mode() -> bool:
     """Sant når innlogging ikke håndheves: LEADMAP_AUTH_DISABLED=1 eller OAuth ikke konfigurert ennå."""
     if (os.environ.get("LEADMAP_AUTH_DISABLED") or "").strip() == "1":
         return True
-    try:
-        return not bool(oauth.google)
-    except Exception:
-        return True
+    return not oauth_google_configured()
 
 
 def get_current_user():
@@ -135,7 +146,7 @@ def api_auth_me():
         {
             "authenticated": u is not None,
             "user": user_out,
-            "oauth_configured": bool(oauth.google),
+            "oauth_configured": oauth_google_configured(),
             "auth_relaxed": relaxed,
         }
     )
@@ -145,7 +156,7 @@ def api_auth_me():
 def auth_google_start():
     from flask import current_app
 
-    if not oauth.google:
+    if not oauth_google_configured():
         return jsonify(
             {
                 "error": "Google OAuth er ikke konfigurert (GOOGLE_OAUTH_CLIENT_ID/SECRET).",
@@ -163,7 +174,7 @@ def auth_google_start():
 def auth_google_callback():
     from flask import current_app
 
-    if not oauth.google:
+    if not oauth_google_configured():
         return redirect("/?auth_error=oauth_not_configured")
     try:
         token = oauth.google.authorize_access_token()
@@ -220,6 +231,25 @@ def auth_logout():
 def register_auth(app) -> None:
     init_auth(app)
     app.register_blueprint(auth_bp)
+
+    @app.route("/login")
+    def login_page():
+        invite = (request.args.get("invite") or "").strip()
+        if auth_relaxed_mode():
+            return render_template(
+                "login.html",
+                relaxed=True,
+                oauth_ok=oauth_google_configured(),
+                invite=invite,
+            )
+        if get_current_user() is not None:
+            return redirect("/")
+        return render_template(
+            "login.html",
+            relaxed=False,
+            oauth_ok=oauth_google_configured(),
+            invite=invite,
+        )
 
     @app.before_request
     def _require_api_login():

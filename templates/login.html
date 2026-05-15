@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Logg inn · LeadMap</title>
+  <script src="/static/theme-init.js"></script>
+  <link rel="icon" type="image/jpeg" href="/static/brand/leadmap-light.jpg">
+  <link rel="stylesheet" href="/static/style.css?v=114">
+  <style>
+    .login-wrap { max-width: 440px; margin: 48px auto; padding: 0 16px; }
+    .login-card {
+      background: var(--panel-bg, #fff);
+      border: 1px solid var(--border, #e5e5e5);
+      border-radius: 12px;
+      padding: 28px 24px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.06);
+    }
+    .login-brand { text-align: center; margin-bottom: 20px; }
+    .login-brand img { max-width: 120px; height: auto; border-radius: 8px; }
+    .login-actions { margin-top: 18px; display: flex; flex-direction: column; gap: 10px; align-items: stretch; }
+    .login-actions a.button { text-align: center; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-brand">
+      <a href="/" class="brand-link" aria-label="LeadMap">
+        <img class="brand-logo brand-logo--light" src="/static/brand/leadmap-light.jpg" width="240" height="160" alt="LeadMap" decoding="async">
+        <img class="brand-logo brand-logo--dark" src="/static/brand/leadmap-dark.jpg" width="240" height="160" alt="" aria-hidden="true" decoding="async">
+      </a>
+    </div>
+    <div class="login-card">
+      <h1 style="font-size:1.35rem;margin:0 0 8px">Logg inn</h1>
+
+      {% if relaxed %}
+      <p class="muted">Appen kjører i <strong>åpen modus</strong> (OAuth ikke i bruk for påkrevd innlogging, eller <code>LEADMAP_AUTH_DISABLED=1</code>). Du trenger ikke logge inn her for å bruke LeadMap.</p>
+      <div class="login-actions">
+        <a class="button" href="/">Gå til LeadMap</a>
+      </div>
+      {% elif not oauth_ok %}
+      <p class="muted">Google OAuth er ikke konfigurert. Sett <code>GOOGLE_OAUTH_CLIENT_ID</code> og <code>GOOGLE_OAUTH_CLIENT_SECRET</code> (se <code>DEPLOY_RENDER.md</code>), start appen på nytt, og last denne siden igjen.</p>
+      <div class="login-actions">
+        <a class="secondary button" href="/" style="font-weight:normal">Til forsiden</a>
+      </div>
+      {% else %}
+      <p class="muted">Bruk Google-kontoen du har tilgang med (eier, medlem, eller invitasjonslenke).</p>
+      {% if invite %}
+      <p class="muted" style="font-size:13px">Du har en <strong>invitasjon</strong> i lenken — etter innlogging kobles kontoen din automatisk.</p>
+      {% endif %}
+      <div class="login-actions">
+        <a class="button" href="{{ url_for('auth_api.auth_google_start', invite=invite) if invite else url_for('auth_api.auth_google_start') }}">Fortsett med Google</a>
+        <a class="secondary button" href="/" style="font-weight:normal;text-align:center;text-decoration:none">Til forsiden</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>

@@ -84,6 +84,12 @@
         btn.href = `/api/auth/google/start${q}`;
       }
     }
+    const loginPage = $("auth-gate-login-page-link");
+    if (loginPage) {
+      loginPage.href = inviteToken
+        ? `/login?invite=${encodeURIComponent(inviteToken)}`
+        : "/login";
+    }
   }
 
   function hideAuthGate() {
@@ -158,8 +164,38 @@
         }),
       });
       if (out) {
-        const safe = String(data.invite_url || "").replace(/"/g, "&quot;");
-        out.innerHTML = `<label>Invitasjonslenke (kopier)</label><input type="text" readonly style="width:100%" value="${safe}">`;
+        const url = String(data.invite_url || "");
+        out.textContent = "";
+        const lab = document.createElement("label");
+        lab.textContent = "Invitasjonslenke (send til mottaker)";
+        const row = document.createElement("div");
+        row.style.cssText = "display:flex;gap:8px;align-items:center;margin-top:6px";
+        const inp = document.createElement("input");
+        inp.type = "text";
+        inp.readOnly = true;
+        inp.style.flex = "1";
+        inp.value = url;
+        const cp = document.createElement("button");
+        cp.type = "button";
+        cp.className = "secondary";
+        cp.textContent = "Kopier";
+        cp.addEventListener("click", async () => {
+          try {
+            await navigator.clipboard.writeText(url);
+            cp.textContent = "Kopiert!";
+            setTimeout(() => {
+              cp.textContent = "Kopier";
+            }, 2000);
+          } catch (e) {
+            inp.select();
+            document.execCommand("copy");
+            cp.textContent = "Kopiert!";
+          }
+        });
+        row.appendChild(inp);
+        row.appendChild(cp);
+        out.appendChild(lab);
+        out.appendChild(row);
       }
     } catch (e) {
       if (out) out.textContent = String(e.message || e);

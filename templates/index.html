@@ -464,6 +464,7 @@
     <p id="auth-gate-invite-hint" class="muted" hidden></p>
     <p class="muted" id="auth-gate-relaxed" hidden style="font-size:13px">OAuth er ikke konfigurert — appen kjører i åpen modus til GOOGLE_OAUTH_CLIENT_ID/SECRET er satt.</p>
     <p style="margin-top:14px"><a class="button" id="auth-gate-google-btn" href="/api/auth/google/start">Fortsett med Google</a></p>
+    <p class="muted" style="margin-top:12px;font-size:13px"><a href="/login" id="auth-gate-login-page-link">Åpne egen loginside</a> (nyttig ved testing)</p>
   </div>
 </div>
 
@@ -472,9 +473,10 @@
     <h2>Brukere og invitasjoner</h2>
     <div id="admin-users-body" class="muted" style="margin-bottom:14px">Laster…</div>
     <h3>Ny invitasjonslenke</h3>
+    <p class="muted" style="margin-bottom:10px;font-size:13px">Brukere logger inn med <strong>Google</strong> (vanlig Gmail eller jobb-Google). Fyll inn mottakers e-post under for å låse lenken til akkurat den kontoen — send lenken i en vanlig e-post eller melding.</p>
     <div class="settings-grid" style="max-width:520px">
       <label>Gyldighet (dager)</label><input type="number" id="admin-invite-days" value="14" min="1" max="90">
-      <label>Lås til e-post (valgfritt)</label><input type="email" id="admin-invite-email" placeholder="navn@firma.no">
+      <label>Lås til e-post (valgfritt)</label><input type="email" id="admin-invite-email" placeholder="navn@gmail.com eller jobb@firma.no">
       <label>Kan legge til kunder</label><input type="checkbox" id="admin-invite-canadd" checked>
       <label>Kan full re-analyse</label><input type="checkbox" id="admin-invite-canfull">
     </div>
@@ -485,7 +487,7 @@
 </div>
 
 <script src="/static/core.js?v=88"></script>
-<script src="/static/auth-ui.js?v=1"></script>
+<script src="/static/auth-ui.js?v=3"></script>
 <script src="/static/leads-table.js?v=80"></script>
 <script src="/static/leads-detail.js?v=86"></script>
 <script src="/static/customers-tab.js?v=68"></script>
