@@ -41,23 +41,18 @@
       gap: 14px;
     }
     .login-brand img {
-      width: 96px;
-      height: 96px;
-      border-radius: 22px;
-      box-shadow: 0 12px 28px -8px rgba(15, 23, 42, 0.25), 0 2px 6px rgba(15, 23, 42, 0.08);
-      object-fit: cover;
-    }
-    .login-brand .brand-name {
-      font-size: 1.75rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--text);
-      margin: 0;
+      width: 100%;
+      max-width: 360px;
+      height: auto;
+      display: block;
+      border-radius: 12px;
+      box-shadow: 0 12px 32px -12px rgba(15, 23, 42, 0.25), 0 2px 6px rgba(15, 23, 42, 0.08);
     }
     .login-brand .brand-tagline {
       font-size: 0.95rem;
       color: var(--muted);
       margin: 0;
+      text-align: center;
     }
     .login-card {
       width: 100%;
@@ -121,6 +116,46 @@
     }
     .btn-google:active { transform: translateY(1px); }
     .btn-google svg { flex-shrink: 0; }
+    .btn-secondary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 11px 18px;
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border, #e2e8f0);
+      border-radius: 10px;
+      font-size: 0.92rem;
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+      box-sizing: border-box;
+    }
+    .btn-secondary:hover {
+      border-color: var(--border-strong, #cbd5e1);
+      color: var(--text);
+      background: var(--surface-2, #f1f5f9);
+    }
+    .login-divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted-soft, #a09e9c);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin: 4px 0;
+    }
+    .login-divider::before,
+    .login-divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--border, #e2e8f0);
+    }
     .login-actions {
       display: flex;
       flex-direction: column;
@@ -174,7 +209,6 @@
       <div class="login-brand">
         <img class="brand-logo brand-logo--light" src="/static/brand/leadmap-light.jpg" alt="LeadMap">
         <img class="brand-logo brand-logo--dark" src="/static/brand/leadmap-dark.jpg" alt="" aria-hidden="true">
-        <h1 class="brand-name">LeadMap</h1>
         <p class="brand-tagline">Smart B2B lead-prospektering for Unifon</p>
       </div>
 
@@ -209,6 +243,12 @@
               </svg>
               <span>Fortsett med Google</span>
             </a>
+            {% if not invite %}
+              <div class="login-divider"><span>eller</span></div>
+              <a class="btn-secondary" href="mailto:{{ admin_email }}?subject=Tilgang%20til%20LeadMap&body=Hei%2C%0A%0AJeg%20%C3%B8nsker%20tilgang%20til%20LeadMap.%0A%0ANavn%3A%20%0AGoogle-konto%20(e-post)%3A%20%0AHvorfor%20jeg%20trenger%20tilgang%3A%20%0A%0AMvh">
+                Be om invitasjon fra admin
+              </a>
+            {% endif %}
           </div>
         {% endif %}
       </div>

@@ -265,12 +265,20 @@ def register_auth(app) -> None:
     @app.route("/login")
     def login_page():
         invite = (request.args.get("invite") or "").strip()
+        # Admin-kontakt for «be om invitasjon»-lenken. Bruker
+        # LEADMAP_ADMIN_CONTACT_EMAIL hvis satt, ellers bootstrap-eieren.
+        admin_email = (
+            (os.environ.get("LEADMAP_ADMIN_CONTACT_EMAIL") or "").strip()
+            or (os.environ.get("LEADMAP_BOOTSTRAP_OWNER_EMAIL") or "").strip()
+            or "tommybusk5@gmail.com"
+        )
         if auth_relaxed_mode():
             return render_template(
                 "login.html",
                 relaxed=True,
                 oauth_ok=oauth_google_configured(),
                 invite=invite,
+                admin_email=admin_email,
             )
         if get_current_user() is not None:
             return redirect("/")
@@ -279,6 +287,7 @@ def register_auth(app) -> None:
             relaxed=False,
             oauth_ok=oauth_google_configured(),
             invite=invite,
+            admin_email=admin_email,
         )
 
     @app.before_request
